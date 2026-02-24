@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verifiche di Francese – Unité 14</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a2a4a;
+    --blue: #2563eb;
+    --sky: #dbeafe;
+    --gold: #f59e0b;
+    --red: #dc2626;
+    --green: #16a34a;
+    --paper: #fdfaf4;
+    --ink: #1c1c1c;
+    --light: #f3f4f6;
+    --border: #d1d5db;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    background: #e8edf5;
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── Layout with sidebar ── */
+  .page-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    position: relative;
+  }
+  #main-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* ── Accent Keyboard Sidebar ── */
+  .accent-sidebar {
+    width: 130px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 58px;
+    max-height: calc(100vh - 70px);
+    overflow-y: auto;
+    background: var(--navy);
+    border-radius: 0 0 12px 0;
+    padding: .8rem .6rem 1rem;
+    box-shadow: 3px 4px 16px rgba(0,0,0,.2);
+    z-index: 90;
+  }
+  .accent-sidebar h3 {
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: .8rem;
+    text-align: center;
+    margin-bottom: .7rem;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .accent-group {
+    margin-bottom: .7rem;
+  }
+  .accent-group-label {
+    color: rgba(255,255,255,.45);
+    font-size: .65rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: .3rem;
+    padding-left: .1rem;
+  }
+  .accent-keys {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem;
+  }
+  .acc-key {
+    background: rgba(255,255,255,.1);
+    border: 1.5px solid rgba(255,255,255,.2);
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    width: 32px;
+    height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: 'Source Serif 4', serif;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .acc-key:hover {
+    background: var(--gold);
+    color: #000;
+    border-color: var(--gold);
+    transform: scale(1.12);
+  }
+  .acc-key:active { transform: scale(.95); }
+  .accent-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,.1);
+    margin: .5rem 0;
+  }
+  .acc-hint {
+    color: rgba(255,255,255,.4);
+    font-size: .62rem;
+    text-align: center;
+    margin-top: .8rem;
+    line-height: 1.5;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      45deg, transparent, transparent 20px,
+      rgba(255,255,255,.03) 20px, rgba(255,255,255,.03) 40px
+    );
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.2rem;
+    letter-spacing: 1px;
+    position: relative;
+  }
+  header p { opacity: .7; margin-top: .3rem; font-size: .95rem; position: relative; }
+  .flag { font-size: 1.5rem; margin-right: .5rem; }
+
+  /* ── Nav tabs ── */
+  nav {
+    background: white;
+    padding: .8rem 1.5rem;
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-bottom: 3px solid var(--navy);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  }
+  .tab-btn {
+    background: var(--light);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    padding: .45rem .9rem;
+    cursor: pointer;
+    font-family: 'Source Serif 4', serif;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--navy);
+    transition: all .2s;
+    position: relative;
+  }
+  .tab-btn:hover { background: var(--sky); border-color: var(--blue); }
+  .tab-btn.active {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+  }
+  .tab-btn .diff {
+    position: absolute;
+    top: -8px; right: -8px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    font-size: .6rem;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 900;
+    color: white;
+  }
+
+  /* ── Main ── */
+  main { max-width: 860px; margin: 2rem auto; padding: 0 1rem 4rem; }
+
+  /* ── Verifica card ── */
+  .verifica { display: none; }
+  .verifica.active { display: block; }
+
+  .verifica-header {
+    background: var(--navy);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    padding: 1.4rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+  }
+  .verifica-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+  }
+  .meta { display: flex; gap: 1rem; font-size: .85rem; opacity: .85; }
+  .badge {
+    background: var(--gold);
+    color: #000;
+    border-radius: 20px;
+    padding: .25rem .8rem;
+    font-weight: 700;
+    font-size: .8rem;
+  }
+
+  .verifica-body {
+    background: var(--paper);
+    border: 2px solid var(--navy);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    padding: 2rem;
+    box-shadow: 4px 6px 20px rgba(0,0,0,.12);
+  }
+
+  /* ── Student info ── */
+  .student-info {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.8rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px dashed var(--border);
+    flex-wrap: wrap;
+  }
+  .student-info label { font-size: .85rem; color: #555; }
+  .student-info input {
+    border: none;
+    border-bottom: 1.5px solid var(--ink);
+    background: transparent;
+    font-family: 'Source Serif 4', serif;
+    font-size: .95rem;
+    padding: .2rem .4rem;
+    min-width: 160px;
+    outline: none;
+  }
+  .student-info input:focus { border-bottom-color: var(--blue); }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 2rem;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    color: var(--navy);
+    border-left: 4px solid var(--gold);
+    padding-left: .7rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+  .section-title .pts {
+    background: var(--sky);
+    color: var(--blue);
+    border-radius: 10px;
+    padding: .1rem .5rem;
+    font-size: .75rem;
+    font-family: 'Source Serif 4', serif;
+    font-weight: 600;
+  }
+  .section-instructions {
+    font-style: italic;
+    color: #555;
+    font-size: .9rem;
+    margin-bottom: .8rem;
+  }
+
+  /* ── Exercise items ── */
+  .exercise-item {
+    display: flex;
+    align-items: baseline;
+    gap: .6rem;
+    margin-bottom: .7rem;
+    font-size: .95rem;
+    line-height: 1.6;
+  }
+  .num {
+    font-weight: 700;
+    color: var(--navy);
+    min-width: 22px;
+    font-size: .85rem;
+  }
+  .blank {
+    display: inline-block;
+    border-bottom: 1.5px solid var(--ink);
+    min-width: 100px;
+    height: 1.2em;
+    vertical-align: middle;
+    background: transparent;
+    outline: none;
+    border-top: none; border-left: none; border-right: none;
+    font-family: 'Source Serif 4', serif;
+    font-size: .95rem;
+    padding: 0 .3rem;
+    color: var(--ink);
+  }
+  .blank:focus { border-bottom-color: var(--blue); background: var(--sky); }
+  .blank.correct { border-bottom-color: var(--green); background: #dcfce7; }
+  .blank.wrong { border-bottom-color: var(--red); background: #fee2e2; }
+
+  /* Multiple choice */
+  .options { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .4rem; }
+  .opt-btn {
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    padding: .35rem .9rem;
+    cursor: pointer;
+    background: white;
+    font-family: 'Source Serif 4', serif;
+    font-size: .9rem;
+    transition: all .15s;
+  }
+  .opt-btn:hover { border-color: var(--blue); background: var(--sky); }
+  .opt-btn.selected { border-color: var(--navy); background: var(--navy); color: white; }
+  .opt-btn.correct-choice { border-color: var(--green); background: #dcfce7; color: #166534; font-weight: 700; }
+  .opt-btn.wrong-choice { border-color: var(--red); background: #fee2e2; color: #991b1b; }
+
+  /* Match lines */
+  .match-table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .match-table td { padding: .4rem .8rem; border: 1px solid var(--border); }
+  .match-table td:first-child { font-weight: 600; background: var(--sky); width: 40%; }
+
+  /* Textarea */
+  .text-area {
+    width: 100%; min-height: 70px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: .6rem;
+    font-family: 'Source Serif 4', serif;
+    font-size: .92rem;
+    resize: vertical;
+    background: white;
+    outline: none;
+    margin-top: .3rem;
+    line-height: 1.7;
+  }
+  .text-area:focus { border-color: var(--blue); }
+
+  /* ── Buttons ── */
+  .actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: .7rem 1.6rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Source Serif 4', serif;
+    font-size: .95rem;
+    font-weight: 600;
+    transition: all .2s;
+  }
+  .btn-primary { background: var(--navy); color: white; }
+  .btn-primary:hover { background: #243b6e; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+  .btn-reset { background: white; color: var(--navy); border: 2px solid var(--navy); }
+  .btn-reset:hover { background: var(--light); }
+  .btn-print { background: var(--gold); color: #000; }
+  .btn-print:hover { filter: brightness(1.05); }
+  .btn-answers { background: #7c3aed; color: white; }
+  .btn-answers:hover { background: #6d28d9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+  .btn-answers.showing { background: #4b5563; }
+
+  /* Answer overlay on blanks */
+  .blank-answer-hint {
+    display: none;
+    font-size: .78rem;
+    color: #7c3aed;
+    font-style: italic;
+    margin-left: .3rem;
+    font-weight: 600;
+  }
+  .answers-visible .blank-answer-hint { display: inline; }
+  .answers-visible .opt-btn[data-is-correct="true"] {
+    border-color: #7c3aed !important;
+    background: #ede9fe !important;
+    color: #4c1d95 !important;
+    font-weight: 700;
+  }
+  .btn-print:hover { filter: brightness(1.05); }
+
+  /* ── Score banner ── */
+  .score-banner {
+    display: none;
+    margin-top: 1.5rem;
+    padding: 1.2rem 1.8rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    text-align: center;
+    font-weight: 600;
+    animation: fadeIn .4s ease;
+  }
+  .score-banner.show { display: block; }
+  .score-banner.ottimo { background: #dcfce7; border: 2px solid var(--green); color: #14532d; }
+  .score-banner.buono { background: #fef9c3; border: 2px solid var(--gold); color: #713f12; }
+  .score-banner.insufficiente { background: #fee2e2; border: 2px solid var(--red); color: #7f1d1d; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Progress indicator ── */
+  .progress-bar {
+    height: 5px;
+    background: var(--light);
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--gold));
+    transition: width .4s ease;
+    width: 0;
+  }
+
+  /* ── Difficulty stars ── */
+  .stars { color: var(--gold); font-size: .9rem; }
+
+  @media print {
+    nav, .actions, .accent-sidebar { display: none; }
+    .verifica { display: block !important; page-break-after: always; }
+    body { background: white; }
+    .verifica-body { box-shadow: none; }
+    .blank { -webkit-print-color-adjust: exact; }
+    .page-layout { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="flag">🇫🇷</span> Verifiche di Francese – Unité 14</h1>
+  <p>États d'âme · Les objets · Comparatif · Imparfait · Pronoms y/en · Savoir · Dire · Croire</p>
+</header>
+
+<nav id="tabs">
+  <!-- tabs generated by JS -->
+</nav>
+
+<div class="page-layout">
+  <!-- Accent Keyboard Sidebar -->
+  <div class="accent-sidebar" id="accentSidebar">
+    <h3>🇫🇷 Accents</h3>
+
+    <div class="accent-group">
+      <div class="accent-group-label">à â</div>
+      <div class="accent-keys">
+        <button class="acc-key" data-char="à">à</button>
+        <button class="acc-key" data-char="â">â</button>
+        <button class="acc-key" data-char="À">À</button>
+        <button class="acc-key" data-char="Â">Â</button>
+      </div>
+    </div>
+
+    <div class="accent-group">
+      <div class="accent-group-label">é è ê ë</div>
+      <div class="accent-keys">
+        <button class="acc-key" data-char="é">é</button>
+        <button class="acc-key" data-char="è">è</button>
+        <button class="acc-key" data-char="ê">ê</button>
+        <button class="acc-key" data-char="ë">ë</button>
+        <button class="acc-key" data-char="É">É</button>
+        <button class="acc-key" data-char="È">È</button>
+        <button class="acc-key" data-char="Ê">Ê</button>
+        <button class="acc-key" data-char="Ë">Ë</button>
+      </div>
+    </div>
+
+    <div class="accent-group">
+      <div class="accent-group-label">î ï</div>
+      <div class="accent-keys">
+        <button class="acc-key" data-char="î">î</button>
+        <button class="acc-key" data-char="ï">ï</button>
+        <button class="acc-key" data-char="Î">Î</button>
+        <button class="acc-key" data-char="Ï">Ï</button>
+      </div>
+    </div>
+
+    <div class="accent-group">
+      <div class="accent-group-label">ô œ</div>
+      <div class="accent-keys">
+        <button class="acc-key" data-char="ô">ô</button>
+        <button class="acc-key" data-char="œ">œ</button>
+        <button class="acc-key" data-char="Ô">Ô</button>
+        <button class="acc-key" data-char="Œ">Œ</button>
+      </div>
+    </div>
+
+    <div class="accent-group">
+      <div class="accent-group-label">ù û ü</div>
+      <div class="accent-keys">
+        <button class="acc-key" data-char="ù">ù</button>
+        <button class="acc-key" data-char="û">û</button>
+        <button class="acc-key" data-char="ü">ü</button>
+        <button class="acc-key" data-char="Ù">Ù</button>
+        <button class="acc-key" data-char="Û">Û</button>
+        <button class="acc-key" data-char="Ü">Ü</button>
+      </div>
+    </div>
+
+    <div class="accent-group">
+      <div class="accent-group-label">ç</div>
+      <div class="accent-keys">
+        <button class="acc-key" data-char="ç">ç</button>
+        <button class="acc-key" data-char="Ç">Ç</button>
+      </div>
+    </div>
+
+    <hr class="accent-divider">
+
+    <div class="accent-group">
+      <div class="accent-group-label">Segni</div>
+      <div class="accent-keys">
+        <button class="acc-key" data-char="«" style="font-size:.75rem">«</button>
+        <button class="acc-key" data-char="»" style="font-size:.75rem">»</button>
+        <button class="acc-key" data-char="…" style="font-size:.85rem">…</button>
+        <button class="acc-key" data-char="—" style="font-size:.85rem">—</button>
+      </div>
+    </div>
+
+    <p class="acc-hint">Clicca una lettera mentre il cursore è in un campo di testo</p>
+  </div>
+
+  <!-- Main content -->
+  <main id="main-content" style="padding: 2rem 1rem 4rem; flex:1; min-width:0;">
+    <!-- verifiche generated by JS -->
+  </main>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  DATA – 10 verifiche
+// ════════════════════════════════════════════════════════════
+const verifiche = [
+
+// ── VERIFICA 1 ─────────────────────────────────────────────
+{
+  title: "Verifica 1",
+  subtitle: "Vocabulaire de base",
+  difficulty: 1,
+  time: "20 min",
+  points: 20,
+  sections: [
+    {
+      title: "Les états d'âme",
+      icon: "😊",
+      pts: 8,
+      instructions: "Scegli l'emozione corretta tra quelle proposte.",
+      type: "multiple-choice",
+      items: [
+        { q: "Hai preso 10 al compito. Sei ___.", choices: ["triste","content(e)","nerveux/nerveuse","fâché(e)"], answer: 1 },
+        { q: "Hai litigato con il tuo migliore amico. Sei ___.", choices: ["heureux/heureuse","calme","fâché(e)","satisfait(e)"], answer: 2 },
+        { q: "Aspetti i risultati di un esame. Sei ___.", choices: ["tranquille","inquiet/inquiète","enthousiaste","amoureux/amoureuse"], answer: 1 },
+        { q: "Hai vinto una gara sportiva. Sei ___.", choices: ["malheureux/malheureuse","jaloux/jalouse","décu(e)","satisfait(e)"], answer: 3 },
+      ]
+    },
+    {
+      title: "Les objets – Matières",
+      icon: "🧱",
+      pts: 6,
+      instructions: "Collega ogni oggetto alla sua materia. Scrivi la lettera.",
+      type: "fill-blank",
+      items: [
+        { q: "Une bouteille d'eau → elle est en ___.", answer: "verre" },
+        { q: "Un bureau → il est en ___.", answer: "bois" },
+        { q: "Une boîte de conserve → elle est en ___.", answer: "métal" },
+      ]
+    },
+    {
+      title: "Les formes",
+      icon: "🔷",
+      pts: 6,
+      instructions: "Descrivi la forma di questi oggetti usando il vocabolario studiato.",
+      type: "fill-blank",
+      items: [
+        { q: "Un ballon de foot → il est ___.", answer: "rond" },
+        { q: "Une boîte à pizza → elle est ___.", answer: "carrée" },
+        { q: "Un tapis de salle de bain → il est ___.", answer: "rectangulaire" },
+      ]
+    }
+  ]
+},
+
+// ── VERIFICA 2 ─────────────────────────────────────────────
+{
+  title: "Verifica 2",
+  subtitle: "États d'âme & Objets",
+  difficulty: 1,
+  time: "25 min",
+  points: 24,
+  sections: [
+    {
+      title: "Contrari degli aggettivi",
+      icon: "🔄",
+      pts: 8,
+      instructions: "Scrivi il contrario. Attenzione all'accordo!",
+      type: "fill-blank",
+      items: [
+        { q: "Il est triste. → Il est ___.", answer: "content" },
+        { q: "Elle est calme. → Elle est ___.", answer: "nerveuse" },
+        { q: "Ils sont contents. → Ils sont ___.", answer: "tristes" },
+        { q: "Elle est malheureuse. → Elle est ___.", answer: "heureuse" },
+      ]
+    },
+    {
+      title: "Caratteristiche degli oggetti",
+      icon: "📦",
+      pts: 8,
+      instructions: "Completa con il contrario dell'aggettivo tra parentesi.",
+      type: "fill-blank",
+      items: [
+        { q: "Ce sac n'est pas lourd, il est ___ (lourd).", answer: "léger" },
+        { q: "Cette valise n'est pas petite, elle est ___ (petit).", answer: "grande" },
+        { q: "Ce tissu n'est pas dur, il est ___ (dur).", answer: "souple" },
+        { q: "Ce verre n'est pas solide, il est ___ (solide).", answer: "fragile" },
+      ]
+    },
+    {
+      title: "Surprise et colère",
+      icon: "😲",
+      pts: 8,
+      instructions: "Scegli la reazione giusta per ogni situazione.",
+      type: "multiple-choice",
+      items: [
+        { q: "Il tuo amico dice che ha vinto 1 milione di euro. Rispondi:", choices: ["Ça suffit !","C'est incroyable !","J'en ai marre !","Arrête !"], answer: 1 },
+        { q: "Il tuo fratello ha mangiato tutto il tuo cibo. Rispondi:", choices: ["Vraiment ?","Tu plaisantes !","Ça m'énerve !","C'est super !"], answer: 2 },
+        { q: "Ti dicono che non puoi giocare alla PlayStation. Rispondi:", choices: ["C'est fantastique !","Ce n'est pas possible !","Ça alors !","J'y crois pas"], answer: 1 },
+        { q: "Qualcuno ti racconta una cosa difficile da credere. Rispondi:", choices: ["J'en ai marre !","Assez !","Tu exagères !","C'est vrai ?"], answer: 3 },
+      ]
+    }
+  ]
+},
+
+// ── VERIFICA 3 ─────────────────────────────────────────────
+{
+  title: "Verifica 3",
+  subtitle: "Comparatif de qualité",
+  difficulty: 2,
+  time: "25 min",
+  points: 24,
+  sections: [
+    {
+      title: "Comparatif – teoria",
+      icon: "⚖️",
+      pts: 6,
+      instructions: "Scegli il comparativo corretto (plus/moins/aussi).",
+      type: "multiple-choice",
+      items: [
+        { q: "Le train est ___rapide___ l'avion (inferiorità).", choices: ["plus... que","moins... que","aussi... que"], answer: 1 },
+        { q: "Paul est ___grand___ Marie (uguaglianza).", choices: ["plus... que","moins... que","aussi... que"], answer: 2 },
+        { q: "Ce livre est ___intéressant___ l'autre (superiorità).", choices: ["plus... que","moins... que","aussi... que"], answer: 0 },
+      ]
+    },
+    {
+      title: "Completa con il comparativo",
+      icon: "✏️",
+      pts: 10,
+      instructions: "Completa con plus, moins o aussi e que.",
+      type: "fill-blank",
+      items: [
+        { q: "Le crayon rouge est ___ court ___ le crayon jaune.", answer: "plus...que" },
+        { q: "La valise bleue est ___ grande ___ la valise blanche.", answer: "moins...que" },
+        { q: "Ce vase est ___ fragile ___ l'autre.", answer: "aussi...que" },
+        { q: "Le bus est ___ long ___ le train.", answer: "moins...que" },
+        { q: "Marie est ___ sportive ___ son frère.", answer: "plus...que" },
+      ]
+    },
+    {
+      title: "Meilleur / Mieux",
+      icon: "🏆",
+      pts: 8,
+      instructions: "Scegli tra meilleur(e/s) e mieux.",
+      type: "multiple-choice",
+      items: [
+        { q: "Cette tarte est ___ que ce gâteau.", choices: ["mieux","meilleure","meilleur","meilleurs"], answer: 1 },
+        { q: "Tu chantes ___ que moi !", choices: ["meilleure","meilleur","mieux","meilleurs"], answer: 2 },
+        { q: "Ça va ___ ? Tu n'as plus mal ?", choices: ["meilleur","meilleure","mieux","meilleurs"], answer: 2 },
+        { q: "Il a de ___ résultats cette année.", choices: ["mieux","meilleure","meilleurs","meilleur"], answer: 2 },
+      ]
+    }
+  ]
+},
+
+// ── VERIFICA 4 ─────────────────────────────────────────────
+{
+  title: "Verifica 4",
+  subtitle: "L'imparfait",
+  difficulty: 2,
+  time: "30 min",
+  points: 30,
+  sections: [
+    {
+      title: "Formazione dell'imparfait",
+      icon: "🕐",
+      pts: 6,
+      instructions: "Coniuga i verbi all'imparfait (io – tu – lui/lei).",
+      type: "fill-blank",
+      items: [
+        { q: "PARLER – nous parlions → je ___ / tu ___ / il ___.", answer: "parlais/parlais/parlait" },
+        { q: "FINIR – nous finissons → je ___ / tu ___ / il ___.", answer: "finissais/finissais/finissait" },
+        { q: "ÊTRE → j'___ / tu ___ / il ___.", answer: "étais/étais/était" },
+      ]
+    },
+    {
+      title: "Coniuga all'imparfait",
+      icon: "✏️",
+      pts: 14,
+      instructions: "Coniuga il verbo tra parentesi all'imparfait.",
+      type: "fill-blank",
+      items: [
+        { q: "Quand Martine (être) ___ petite, elle (aller) ___ au cours de danse.", answer: "était/allait" },
+        { q: "Qu'est-ce que tu (avoir) ___ envie de faire ?", answer: "avais" },
+        { q: "Je (devoir) ___ faire beaucoup d'exercices.", answer: "devais" },
+        { q: "Elle (venir) ___ me voir tous les samedis.", answer: "venait" },
+        { q: "Nous (jouer) ___ dans le parc chaque après-midi.", answer: "jouions" },
+        { q: "Vous (regarder) ___ souvent la télévision ?", answer: "regardiez" },
+        { q: "Ils (partir) ___ toujours en vacances en août.", answer: "partaient" },
+      ]
+    },
+    {
+      title: "Trasforma al passé (présent → imparfait)",
+      icon: "🔁",
+      pts: 10,
+      instructions: "Trasforma le frasi usando l'imparfait.",
+      type: "fill-blank",
+      items: [
+        { q: "Elle est toujours en retard. → Elle ___ toujours en retard.", answer: "était" },
+        { q: "Il va à la plage tous les jours. → Il ___ à la plage tous les jours.", answer: "allait" },
+        { q: "Tu finis ton travail à cinq heures. → Tu ___ ton travail à cinq heures.", answer: "finissais" },
+        { q: "Ils parlent tout le temps de leurs aventures. → Ils ___ tout le temps de leurs aventures.", answer: "parlaient" },
+        { q: "Nous sommes fatigués le soir. → Nous ___ fatigués le soir.", answer: "étions" },
+      ]
+    }
+  ]
+},
+
+// ── VERIFICA 5 ─────────────────────────────────────────────
+{
+  title: "Verifica 5",
+  subtitle: "Pronoms y et en",
+  difficulty: 3,
+  time: "30 min",
+  points: 30,
+  sections: [
+    {
+      title: "Y o EN? – Teoria",
+      icon: "🔤",
+      pts: 6,
+      instructions: "Scegli il pronome corretto: y o en.",
+      type: "multiple-choice",
+      items: [
+        { q: "— Tu vas à la bibliothèque ? — Oui, j'___ vais.", choices: ["en","y"], answer: 1 },
+        { q: "— Tu veux des cerises ? — Non, merci, je n'___ veux pas.", choices: ["y","en"], answer: 1 },
+        { q: "— Tu penses à la compétition ? — Oui, j'___ pense.", choices: ["en","y"], answer: 1 },
+      ]
+    },
+    {
+      title: "Sostituisci con y o en",
+      icon: "✏️",
+      pts: 14,
+      instructions: "Completa con y o en per sostituire il complemento evidenziato.",
+      type: "fill-blank",
+      items: [
+        { q: "— Vous allez à la salle de gym ? — Oui, nous ___ allons.", answer: "y" },
+        { q: "— Tu veux encore des cerises ? — Merci, j'___ veux encore.", answer: "en" },
+        { q: "— Tu penses toujours à la compétition ? — Oui, j'___ pense.", answer: "y" },
+        { q: "— Elles discutent de ce projet ? — Oui, elles ___ discutent.", answer: "en" },
+        { q: "— Il parle de ses problèmes ? — Oui, il ___ parle.", answer: "en" },
+        { q: "— Tu tiens à ce projet ? — Oui, j'___ tiens.", answer: "y" },
+        { q: "— Ils vont au cinéma ? — Oui, ils ___ vont souvent.", answer: "y" },
+      ]
+    },
+    {
+      title: "All'imperativo con y o en",
+      icon: "❗",
+      pts: 10,
+      instructions: "Trasforma le frasi all'imperativo affermativo (aggiungi y o en).",
+      type: "fill-blank",
+      items: [
+        { q: "Vous n'y pensez pas. → ___-___!", answer: "Pensez-y" },
+        { q: "Nous n'en prenons pas. → ___-___!", answer: "Prenons-en" },
+        { q: "Vous n'en achetez pas. → ___-___!", answer: "Achetez-en" },
+        { q: "Tu n'y vas pas. → ___-___!", answer: "Vas-y" },
+        { q: "Il ne pense pas → ___ à ce projet!", answer: "Pense-y" },
+      ]
+    }
+  ]
+},
+
+// ── VERIFICA 6 ─────────────────────────────────────────────
+{
+  title: "Verifica 6",
+  subtitle: "Verbi: Savoir, Dire, Croire",
+  difficulty: 3,
+  time: "30 min",
+  points: 32,
+  sections: [
+    {
+      title: "Coniugazione: SAVOIR",
+      icon: "🧠",
+      pts: 10,
+      instructions: "Completa le frasi con la forma corretta di SAVOIR.",
+      type: "fill-blank",
+      items: [
+        { q: "Tu ___ quelle est l'adresse de Nicolas ?", answer: "sais" },
+        { q: "Ils ne ___ pas encore les résultats des examens.", answer: "savent" },
+        { q: "Il ___ jouer de la guitare.", answer: "sait" },
+        { q: "Vous ___ skier ?", answer: "savez" },
+        { q: "Je ne ___ pas à quelle heure il y a le match.", answer: "sais" },
+      ]
+    },
+    {
+      title: "Coniugazione: DIRE",
+      icon: "💬",
+      pts: 12,
+      instructions: "Scegli la forma corretta di DIRE.",
+      type: "multiple-choice",
+      items: [
+        { q: "Qu'est-ce que tu ___ ? Je ne comprends pas.", choices: ["dis","dit","disent","disons"], answer: 0 },
+        { q: "Il ___ qu'il est d'accord.", choices: ["disent","dites","dit","dis"], answer: 2 },
+        { q: "Qu'est-ce que vous ___ ?", choices: ["dis","dit","dites","disent"], answer: 2 },
+        { q: "Nous ___ la vérité.", choices: ["dis","dit","disons","disent"], answer: 2 },
+        { q: "Ils ___ que ça ne va pas.", choices: ["dis","dit","dites","disent"], answer: 3 },
+        { q: "Tu ___ des bêtises !", choices: ["dis","dit","dites","disent"], answer: 0 },
+      ]
+    },
+    {
+      title: "Coniugazione: CROIRE",
+      icon: "🤔",
+      pts: 10,
+      instructions: "Completa con la forma corretta di CROIRE.",
+      type: "fill-blank",
+      items: [
+        { q: "Je ne ___ pas à ces mots.", answer: "crois" },
+        { q: "Vous ___ à Ludovic ?", answer: "croyez" },
+        { q: "Ils ___ que c'est une bonne solution.", answer: "croient" },
+        { q: "Elle ___ qu'ils sont fâchés.", answer: "croit" },
+        { q: "Nous ___ qu'elle est satisfaite.", answer: "croyons" },
+      ]
+    }
+  ]
+},
+
+// ── VERIFICA 7 ─────────────────────────────────────────────
+{
+  title: "Verifica 7",
+  subtitle: "Décrire un objet",
+  difficulty: 3,
+  time: "35 min",
+  points: 32,
+  sections: [
+    {
+      title: "Fare domande sugli oggetti",
+      icon: "❓",
+      pts: 12,
+      instructions: "Scrivi la domanda appropriata per ogni risposta.",
+      type: "fill-blank",
+      items: [
+        { q: "— ___ ? — Mon sac est rectangulaire.", answer: "Il a quelle forme ?" },
+        { q: "— ___ ? — Ma valise est bleue et lourde.", answer: "Elle est de quelle couleur ?" },
+        { q: "— ___ ? — Sa trousse est rose.", answer: "Elle est comment ?" },
+        { q: "— ___ ? — Mon sac à dos est en cuir.", answer: "Il est en quelle matière ?" },
+        { q: "— ___ ? — Les parasols de la plage sont jaunes.", answer: "Ils sont de quelle couleur ?" },
+        { q: "— ___ ? — Ce code sert à ouvrir la porte.", answer: "À quoi ça sert ?" },
+      ]
+    },
+    {
+      title: "Descrivi oggetti",
+      icon: "🔍",
+      pts: 12,
+      instructions: "Descrivi ogni oggetto usando forma, materia e colore. Scrivi almeno 2 caratteristiche.",
+      type: "textarea",
+      items: [
+        { q: "Une clé en métal → La clé est ___.", hint: "petite, longue, en métal, rigide..." },
+        { q: "Un verre d'eau → Le verre est ___.", hint: "transparent, fragile, rond, en verre..." },
+        { q: "Un smartphone → Le smartphone est ___.", hint: "rectangulaire, léger, plat, en plastique..." },
+      ]
+    },
+    {
+      title: "Comparatif appliqué aux objets",
+      icon: "⚖️",
+      pts: 8,
+      instructions: "Forma frasi comparative tra i due oggetti indicati.",
+      type: "textarea",
+      items: [
+        { q: "Un sac en cuir / un sac en plastique (lourd).", hint: "Un sac en cuir est plus lourd qu'un sac en plastique." },
+        { q: "Une plume / un marteau (léger).", hint: "Une plume est plus légère qu'un marteau." },
+        { q: "Le carton / l'acier (résistant).", hint: "Le carton est moins résistant que l'acier." },
+        { q: "La soie / le cuir (souple).", hint: "La soie est plus souple que le cuir." },
+      ]
+    }
+  ]
+},
+
+// ── VERIFICA 8 ─────────────────────────────────────────────
+{
+  title: "Verifica 8",
+  subtitle: "Révision complète A",
+  difficulty: 4,
+  time: "40 min",
+  points: 40,
+  sections: [
+    {
+      title: "Imparfait – racconto",
+      icon: "📖",
+      pts: 14,
+      instructions: "Completa il testo mettendo i verbi all'imparfait.",
+      type: "fill-blank",
+      items: [
+        { q: "Quand j'___ (avoir) dix ans, j'___ (habiter) à Lyon.", answer: "avais/habitais" },
+        { q: "Tous les matins, je ___ (aller) à l'école à vélo.", answer: "allais" },
+        { q: "Mes parents ___ (travailler) dans un bureau.", answer: "travaillaient" },
+        { q: "Le soir, on ___ (regarder) la télévision ensemble.", answer: "regardait" },
+        { q: "Mon frère ___ (être) plus grand que moi et il ___ (savoir) jouer de la guitare.", answer: "était/savait" },
+        { q: "Nous ___ (croire) que la vie ___ (être) parfaite.", answer: "croyions/était" },
+      ]
+    },
+    {
+      title: "Pronomi y/en – dialogo",
+      icon: "💬",
+      pts: 10,
+      instructions: "Sostituisci le parole sottolineate con y o en.",
+      type: "fill-blank",
+      items: [
+        { q: "— Tu manges des fruits ? — Oui, j'___ mange chaque matin.", answer: "en" },
+        { q: "— Vous pensez aux vacances ? — Oui, nous ___ pensons déjà !", answer: "y" },
+        { q: "— Il boit du café ? — Non, il n'___ boit jamais.", answer: "en" },
+        { q: "— Elle retourne en France ? — Oui, elle ___ retourne en juillet.", answer: "y" },
+        { q: "— Vous avez besoin de temps ? — Oui, on ___ a besoin.", answer: "en" },
+      ]
+    },
+    {
+      title: "Misto – verbi irregolari",
+      icon: "🔀",
+      pts: 16,
+      instructions: "Coniuga al présent de l'indicatif i verbi SAVOIR, DIRE, CROIRE.",
+      type: "fill-blank",
+      items: [
+        { q: "Je ne ___ (savoir) pas où il est allé.", answer: "sais" },
+        { q: "Elle ___ (croire) qu'il a tort.", answer: "croit" },
+        { q: "Qu'est-ce que vous ___ (dire) ?", answer: "dites" },
+        { q: "Ils ___ (savoir) jouer aux échecs.", answer: "savent" },
+        { q: "Tu ___ (croire) cette histoire ?", answer: "crois" },
+        { q: "Nous ___ (dire) toujours la vérité.", answer: "disons" },
+        { q: "Elle ___ (savoir) que c'est compliqué.", answer: "sait" },
+        { q: "Vous ___ (croire) ce qu'il dit ?", answer: "croyez" },
+      ]
+    }
+  ]
+},
+
+// ── VERIFICA 9 ─────────────────────────────────────────────
+{
+  title: "Verifica 9",
+  subtitle: "Révision complète B",
+  difficulty: 4,
+  time: "45 min",
+  points: 44,
+  sections: [
+    {
+      title: "Comparatif – testo completo",
+      icon: "📊",
+      pts: 12,
+      instructions: "Completa il testo con il comparativo corretto (plus/moins/aussi + que) o meilleur/mieux.",
+      type: "fill-blank",
+      items: [
+        { q: "La Ferrari est ___ rapide ___ la Fiat.", answer: "plus...que" },
+        { q: "Mon frère court ___ vite ___ moi.", answer: "aussi...que" },
+        { q: "Ce restaurant est ___ cher ___ l'autre.", answer: "moins...que" },
+        { q: "Sa note est ___ (bon) que la mienne.", answer: "meilleure" },
+        { q: "Il chante ___ (bien) que sa sœur.", answer: "mieux" },
+        { q: "Cette solution est ___ efficace ___ la première.", answer: "plus...que" },
+      ]
+    },
+    {
+      title: "Dialogo con y/en e imperativo",
+      icon: "🗣️",
+      pts: 12,
+      instructions: "Riscrivi le frasi inserendo il pronome y o en, anche con l'imperativo.",
+      type: "fill-blank",
+      items: [
+        { q: "Va à la boulangerie ! → ___-___!", answer: "Vas-y" },
+        { q: "Prends des fraises ! → ___-___!", answer: "Prends-en" },
+        { q: "Mange des légumes ! → ___-___!", answer: "Manges-en" },
+        { q: "Pense à ton travail ! → ___-___!", answer: "Penses-y" },
+        { q: "Buvez de l'eau ! → ___-___!", answer: "Buvez-en" },
+        { q: "Allons au parc ! → ___-___!", answer: "Allons-y" },
+      ]
+    },
+    {
+      title: "Produzione scritta guidata",
+      icon: "✍️",
+      pts: 20,
+      instructions: "Scrivi un breve testo (5-7 frasi) descrivendo come eri e cosa facevi quando eri piccolo/a. Usa l'imparfait, almeno 2 aggettivi di emozione e 1 comparativo.",
+      type: "textarea",
+      items: [
+        { q: "Quand j'étais petit(e)... (Scrivi 5-7 frasi usando l'imparfait, stati d'animo e comparativo)", hint: "Quand j'avais 8 ans, j'habitais... J'étais content(e) parce que... J'allais... Mon frère était plus grand que moi..." }
+      ]
+    }
+  ]
+},
+
+// ── VERIFICA 10 ────────────────────────────────────────────
+{
+  title: "Verifica 10",
+  subtitle: "Verifica sommativa",
+  difficulty: 5,
+  time: "50 min",
+  points: 50,
+  sections: [
+    {
+      title: "Comprensione – testo",
+      icon: "📄",
+      pts: 10,
+      instructions: "Leggi e rispondi con y/en o verbi corretti.",
+      type: "fill-blank",
+      items: [
+        { q: "Lucie ___ (croire) que son sac est le ___ (bon) de tous.", answer: "croit/meilleur" },
+        { q: "Elle ___ (savoir) qu'il est en cuir et que ce matériau est ___ résistant ___ le plastique.", answer: "sait/plus...que" },
+        { q: "— Tu ___ (aller) souvent à ce magasin ? — Oui, j'___ vais chaque semaine.", answer: "vas/y" },
+        { q: "— Elle ___ (acheter) des bijoux ? — Oui, elle ___ achète beaucoup.", answer: "achète/en" },
+        { q: "Quand Marc ___ (être) jeune, il ___ (dire) toujours la vérité.", answer: "était/disait" },
+      ]
+    },
+    {
+      title: "Trasformazioni multiple",
+      icon: "🔄",
+      pts: 15,
+      instructions: "Riscrivi ogni frase come indicato tra parentesi.",
+      type: "fill-blank",
+      items: [
+        { q: "(imparfait) Nous allons au cinéma chaque samedi. → Nous ___ au cinéma chaque samedi.", answer: "allions" },
+        { q: "(comparatif supériorité) Ce livre est intéressant. (l'autre) → Ce livre est ___ intéressant ___ l'autre.", answer: "plus...que" },
+        { q: "(pronom y) – Tu vas à Paris ? – Oui, j'___ vais demain.", answer: "y" },
+        { q: "(pronom en) – Il veut du chocolat ? – Oui, il ___ veut.", answer: "en" },
+        { q: "(impératif + en) Tu peux prendre des pommes. → ___-___!", answer: "Prends-en" },
+      ]
+    },
+    {
+      title: "Dictée commentée",
+      icon: "🖊️",
+      pts: 10,
+      instructions: "Inserisci le parole mancanti nel dialogo.",
+      type: "fill-blank",
+      items: [
+        { q: "— Regarde, Julie ! Mon père m'a acheté un vélo ! — ___ ? C'est super !", answer: "Vraiment" },
+        { q: "— Encore des exercices de maths ! — J'___ ___!", answer: "en ai marre" },
+        { q: "— Il ___ (savoir) que tu es fâché(e) ? — Oui, je le lui ___ (dire) hier.", answer: "sait/ai dit" },
+      ]
+    },
+    {
+      title: "Produzione libera",
+      icon: "🌟",
+      pts: 15,
+      instructions: "Scrivi un testo di almeno 8 frasi su questo tema: 'Un oggetto speciale che avevi da piccolo/a e cosa rappresentava per te.' Usa: descrizione dell'oggetto (materia, forma, colore), imparfait per raccontare ricordi, comparativo, pronomi y/en, almeno un verbo tra savoir/dire/croire.",
+      type: "textarea",
+      items: [
+        { q: "Un objet spécial de mon enfance... (almeno 8 frasi con tutti gli elementi richiesti)", hint: "Quand j'avais ... ans, j'avais un/une ... Il/Elle était en ... et de couleur ... Il/Elle était plus ... que ... Je savais que ... J'y tenais beaucoup parce que ... Mes amis m'en parlaient souvent..." }
+      ]
+    }
+  ]
+}
+
+]; // fine verifiche array
+
+// ════════════════════════════════════════════════════════════
+//  RENDER
+// ════════════════════════════════════════════════════════════
+
+const tabContainer = document.getElementById('tabs');
+const mainContainer = document.getElementById('main-content');
+
+const diffColor = ['','#22c55e','#84cc16','#f59e0b','#ef4444','#7c3aed'];
+const diffLabel = ['','★','★★','★★★','★★★★','★★★★★'];
+
+verifiche.forEach((v, vi) => {
+  // ── Tab button
+  const btn = document.createElement('button');
+  btn.className = 'tab-btn' + (vi === 0 ? ' active' : '');
+  btn.innerHTML = `${v.title} <span class="diff" style="background:${diffColor[v.difficulty]}">${v.difficulty}</span>`;
+  btn.onclick = () => switchTab(vi);
+  tabContainer.appendChild(btn);
+
+  // ── Verifica wrapper
+  const wrap = document.createElement('div');
+  wrap.className = 'verifica' + (vi === 0 ? ' active' : '');
+  wrap.id = `v${vi}`;
+
+  // Header
+  const vHeader = document.createElement('div');
+  vHeader.className = 'verifica-header';
+  vHeader.innerHTML = `
+    <div>
+      <h2>${v.title} – ${v.subtitle}</h2>
+      <div class="meta">
+        <span>⏱ ${v.time}</span>
+        <span>📝 ${v.points} punti</span>
+      </div>
+    </div>
+    <div>
+      <span class="badge stars">${diffLabel[v.difficulty]}</span>
+    </div>`;
+
+  const progressBar = document.createElement('div');
+  progressBar.className = 'progress-bar';
+  const pFill = document.createElement('div');
+  pFill.className = 'progress-fill';
+  progressBar.appendChild(pFill);
+
+  const vBody = document.createElement('div');
+  vBody.className = 'verifica-body';
+
+  // Student info
+  vBody.innerHTML = `
+    <div class="student-info">
+      <div><label>Nome e Cognome</label><br><input type="text" placeholder="..."></div>
+      <div><label>Classe</label><br><input type="text" placeholder="..."></div>
+      <div><label>Data</label><br><input type="date"></div>
+      <div><label>Voto</label><br><input type="text" placeholder="___/10"></div>
+    </div>`;
+
+  // Track correctables
+  let totalCorrectables = 0;
+
+  // Sections
+  v.sections.forEach((sec, si) => {
+    const secDiv = document.createElement('div');
+    secDiv.className = 'section';
+
+    secDiv.innerHTML = `
+      <div class="section-title">
+        ${sec.icon} Esercizio ${si + 1}: ${sec.title}
+        <span class="pts">${sec.pts} pt</span>
+      </div>
+      <p class="section-instructions">${sec.instructions}</p>`;
+
+    if (sec.type === 'multiple-choice') {
+      sec.items.forEach((item, ii) => {
+        totalCorrectables++;
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'exercise-item';
+        const optHTML = item.choices.map((c, ci) =>
+          `<button class="opt-btn" data-vi="${vi}" data-si="${si}" data-ii="${ii}" data-ci="${ci}" data-is-correct="${ci === item.answer}" onclick="selectOpt(this,${ci},${item.answer})">${c}</button>`
+        ).join('');
+        itemDiv.innerHTML = `<span class="num">${ii + 1}.</span><span><span>${item.q}</span><div class="options">${optHTML}</div></span>`;
+        secDiv.appendChild(itemDiv);
+      });
+    } else if (sec.type === 'fill-blank') {
+      sec.items.forEach((item, ii) => {
+        totalCorrectables++;
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'exercise-item';
+        itemDiv.innerHTML = `<span class="num">${ii + 1}.</span>
+          <span>${item.q.replace('___', `<input class="blank" data-answer="${item.answer}" data-vi="${vi}" placeholder="...">`)}<span class="blank-answer-hint">[${item.answer}]</span></span>`;
+        secDiv.appendChild(itemDiv);
+      });
+    } else if (sec.type === 'textarea') {
+      sec.items.forEach((item, ii) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'exercise-item';
+        itemDiv.style.flexDirection = 'column';
+        itemDiv.innerHTML = `
+          <div><span class="num">${ii + 1}.</span> ${item.q}</div>
+          <em style="color:#888;font-size:.82rem">${item.hint}</em>
+          <textarea class="text-area" placeholder="Scrivi qui la tua risposta..."></textarea>`;
+        secDiv.appendChild(itemDiv);
+      });
+    }
+
+    vBody.appendChild(secDiv);
+  });
+
+  // Score banner
+  const scoreBanner = document.createElement('div');
+  scoreBanner.className = 'score-banner';
+  scoreBanner.id = `score-${vi}`;
+  vBody.appendChild(scoreBanner);
+
+  // Actions
+  const actions = document.createElement('div');
+  actions.className = 'actions';
+  actions.innerHTML = `
+    <button class="btn btn-reset" onclick="resetVerifica(${vi})">🔄 Ricomincia</button>
+    <button class="btn btn-print" onclick="window.print()">🖨 Stampa</button>
+    <button class="btn btn-answers" id="ans-btn-${vi}" onclick="toggleAnswers(${vi})">👁 Visualizza risposte</button>
+    <button class="btn btn-primary" onclick="checkVerifica(${vi})">✅ Correggi</button>`;
+  vBody.appendChild(actions);
+
+  wrap.appendChild(vHeader);
+  wrap.appendChild(progressBar);
+  wrap.appendChild(vBody);
+  mainContainer.appendChild(wrap);
+});
+
+// ════════════════════════════════════════════════════════════
+//  INTERACTIVITY
+// ════════════════════════════════════════════════════════════
+
+function switchTab(vi) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === vi));
+  document.querySelectorAll('.verifica').forEach((v, i) => v.classList.toggle('active', i === vi));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectOpt(btn, ci, correct) {
+  const group = btn.closest('.options').querySelectorAll('.opt-btn');
+  group.forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function normalizeAns(s) {
+  return s.toLowerCase().trim().replace(/['']/g,"'").replace(/\s+/g,' ');
+}
+
+function checkVerifica(vi) {
+  const wrap = document.getElementById(`v${vi}`);
+  let correct = 0, total = 0;
+
+  // Fill blanks
+  wrap.querySelectorAll('.blank').forEach(inp => {
+    total++;
+    const accepted = inp.dataset.answer.split('/').map(a => normalizeAns(a));
+    const val = normalizeAns(inp.value);
+    if (accepted.includes(val)) {
+      inp.classList.add('correct'); inp.classList.remove('wrong'); correct++;
+    } else {
+      inp.classList.add('wrong'); inp.classList.remove('correct');
+    }
+  });
+
+  // Multiple choice
+  wrap.querySelectorAll('.options').forEach(optGroup => {
+    total++;
+    const buttons = optGroup.querySelectorAll('.opt-btn');
+    const selected = optGroup.querySelector('.opt-btn.selected');
+    if (!selected) { return; }
+    const ci = parseInt(selected.dataset.ci);
+    const answer = parseInt(selected.dataset.ci); // use correct attr set at creation
+    // Re-read correct from data
+    // We stored answer in each button via onclick; parse it
+    const onclickStr = selected.getAttribute('onclick');
+    const match = onclickStr.match(/selectOpt\(this,\d+,(\d+)\)/);
+    if (!match) return;
+    const correctIdx = parseInt(match[1]);
+    buttons.forEach((b, idx) => {
+      const bOnclick = b.getAttribute('onclick');
+      const bMatch = bOnclick.match(/selectOpt\(this,(\d+),\d+\)/);
+      const bIdx = bMatch ? parseInt(bMatch[1]) : idx;
+      if (bIdx === correctIdx) b.classList.add('correct-choice');
+    });
+    if (ci === correctIdx) { selected.classList.add('correct-choice'); selected.classList.remove('selected'); correct++; }
+    else { selected.classList.add('wrong-choice'); }
+  });
+
+  // Score
+  const pct = total > 0 ? Math.round(correct / total * 100) : 0;
+  const fill = wrap.querySelector('.progress-fill');
+  if (fill) fill.style.width = pct + '%';
+
+  const banner = document.getElementById(`score-${vi}`);
+  banner.classList.add('show');
+  let cls, msg;
+  if (pct >= 80) { cls = 'ottimo'; msg = `🎉 Ottimo! ${correct}/${total} risposte corrette (${pct}%)`; }
+  else if (pct >= 55) { cls = 'buono'; msg = `👍 Buono! ${correct}/${total} risposte corrette (${pct}%). Ripasssa le parti in rosso.`; }
+  else { cls = 'insufficiente'; msg = `📚 ${correct}/${total} risposte corrette (${pct}%). Ripassa gli argomenti e riprova!`; }
+  banner.className = `score-banner show ${cls}`;
+  banner.textContent = msg;
+  banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function resetVerifica(vi) {
+  const wrap = document.getElementById(`v${vi}`);
+  wrap.querySelectorAll('.blank').forEach(inp => {
+    inp.value = ''; inp.classList.remove('correct','wrong');
+  });
+  wrap.querySelectorAll('.opt-btn').forEach(b => {
+    b.classList.remove('selected','correct-choice','wrong-choice');
+  });
+  wrap.querySelectorAll('.text-area').forEach(ta => ta.value = '');
+  const banner = document.getElementById(`score-${vi}`);
+  banner.classList.remove('show');
+  const fill = wrap.querySelector('.progress-fill');
+  if (fill) fill.style.width = '0';
+}
+
+// ════════════════════════════════════════════════════════════
+//  ACCENT KEYBOARD — mousedown + preventDefault mantiene il focus
+// ════════════════════════════════════════════════════════════
+let lastFocused = null;
+
+document.addEventListener('focusin', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+    lastFocused = e.target;
+  }
+});
+
+// Intercetta mousedown su tutti i tasti accento: blocca il blur
+document.getElementById('accentSidebar').addEventListener('mousedown', (e) => {
+  const key = e.target.closest('.acc-key');
+  if (!key) return;
+  e.preventDefault(); // <-- impedisce che il campo perda il focus
+  const char = key.dataset.char;
+  if (!char || !lastFocused) return;
+  insertAccent(char);
+});
+
+function insertAccent(char) {
+  if (!lastFocused) return;
+  const el = lastFocused;
+  const start = el.selectionStart ?? el.value.length;
+  const end   = el.selectionEnd   ?? el.value.length;
+  el.value = el.value.slice(0, start) + char + el.value.slice(end);
+  const newPos = start + char.length;
+  el.selectionStart = newPos;
+  el.selectionEnd   = newPos;
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+// ════════════════════════════════════════════════════════════
+//  TOGGLE ANSWERS
+// ════════════════════════════════════════════════════════════
+function toggleAnswers(vi) {
+  const wrap = document.getElementById(`v${vi}`);
+  const btn  = document.getElementById(`ans-btn-${vi}`);
+  const showing = wrap.classList.toggle('answers-visible');
+  btn.textContent = showing ? '🙈 Nascondi risposte' : '👁 Visualizza risposte';
+  btn.classList.toggle('showing', showing);
+}
+</script>
+</body>
+</html>
