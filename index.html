@@ -1,0 +1,2263 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoundBoard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&family=Playfair+Display:wght@400;700&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="icon" id="faviconEl" type="image/png" href="">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #1a1a24;
+  --border: #2a2a3a;
+  --accent: #7c3aed;
+  --accent2: #06b6d4;
+  --accent3: #f59e0b;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --playing: #10b981;
+  --danger: #ef4444;
+  --glow: rgba(124,58,237,0.4);
+  --tab-active: #7c3aed;
+  --card-radius: 14px;
+  --font-main: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-main);
+  min-height:100vh;
+  overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -10%,rgba(124,58,237,.12) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%,rgba(6,182,212,.08) 0%,transparent 60%);
+  transition: background 0.4s, color 0.3s;
+}
+body.theme-light{
+  --bg:#f0f2f8;--surface:#ffffff;--surface2:#e8eaf2;--border:#d0d4e8;
+  --text:#1a1a2e;--muted:#7a7a9a;--glow:rgba(124,58,237,.2);
+  background-image:radial-gradient(ellipse 80% 50% at 20% -10%,rgba(124,58,237,.06) 0%,transparent 60%);
+}
+body.theme-cyberpunk{
+  --bg:#000;--surface:#0d0d1a;--surface2:#111128;--border:#00ff9940;
+  --accent:#00ff99;--accent2:#ff0099;--accent3:#ffee00;--glow:rgba(0,255,153,.3);
+}
+body.theme-warm{
+  --bg:#12080a;--surface:#1c100e;--surface2:#261614;--border:#3a2420;
+  --accent:#e85d26;--accent2:#f5a623;--accent3:#ffe066;--glow:rgba(232,93,38,.3);
+}
+body.theme-ocean{
+  --bg:#04090f;--surface:#091520;--surface2:#102030;--border:#1a3050;
+  --accent:#0ea5e9;--accent2:#22d3ee;--accent3:#a3e635;--glow:rgba(14,165,233,.3);
+}
+
+/* noise */
+body::before{content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;}
+
+.container{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:0 24px 60px;}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:20px 0 18px;border-bottom:1px solid var(--border);margin-bottom:0;}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.logo-img{width:40px;height:40px;border-radius:10px;object-fit:contain;background:#000;padding:4px;box-shadow:0 0 16px var(--glow);}
+.logo h1{font-size:20px;font-weight:800;letter-spacing:-0.5px;}
+.logo h1 span{color:var(--accent2);}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ws-status{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--muted);padding:6px 12px;border:1px solid var(--border);border-radius:20px;}
+.ws-dot{width:7px;height:7px;border-radius:50%;background:var(--danger);animation:pulse 2s infinite;}
+.ws-dot.connected{background:var(--playing);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.vol-control{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 12px;}
+.vol-label{font-size:12px;color:var(--muted);white-space:nowrap;}
+input[type=range]{-webkit-appearance:none;width:80px;height:4px;background:var(--border);border-radius:2px;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;background:var(--accent);border-radius:50%;cursor:pointer;}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:24px;}
+.tab-btn{padding:14px 28px;background:transparent;border:none;cursor:pointer;
+  font-family:var(--font-main);font-size:14px;font-weight:700;color:var(--muted);
+  border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;letter-spacing:.3px;}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-btn:hover:not(.active){color:var(--text);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* FOLDER */
+.folder-section{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 22px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.folder-btn{display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--accent),#5b21b6);color:white;border:none;cursor:pointer;padding:10px 20px;border-radius:10px;font-family:var(--font-main);font-weight:600;font-size:14px;transition:all .2s;white-space:nowrap;box-shadow:0 4px 15px rgba(124,58,237,.3);}
+.folder-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(124,58,237,.5);}
+.folder-info{font-family:var(--font-mono);font-size:12px;color:var(--muted);flex:1;min-width:200px;}
+.folder-info strong{color:var(--accent2);font-weight:500;}
+.stats{display:flex;gap:20px;}
+.stat{text-align:center;}
+.stat-num{font-size:20px;font-weight:800;color:var(--accent2);line-height:1;}
+.stat-label{font-size:10px;color:var(--muted);margin-top:2px;font-family:var(--font-mono);text-transform:uppercase;}
+
+/* KEYBIND PANEL */
+.keybind-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px 22px;margin-bottom:24px;}
+.panel-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.keybind-slots{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+@media(max-width:700px){.keybind-slots{grid-template-columns:1fr 1fr;}}
+.keybind-slot{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;position:relative;transition:border-color .2s;}
+.keybind-slot.has-sound{border-color:rgba(124,58,237,.5);}
+.keybind-slot.is-playing{border-color:var(--playing);box-shadow:0 0 14px rgba(16,185,129,.3);}
+.slot-key{display:inline-flex;align-items:center;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--accent3);margin-bottom:8px;cursor:pointer;transition:all .2s;user-select:none;}
+.slot-key:hover{border-color:var(--accent3);background:rgba(245,158,11,.1);}
+.slot-key.listening{border-color:var(--accent3);background:rgba(245,158,11,.2);animation:blink .6s infinite;color:#fff;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+.slot-name{font-size:11px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:6px;}
+.slot-name.empty{color:var(--muted);font-style:italic;}
+.slot-thumb{width:100%;height:50px;border-radius:8px;object-fit:cover;margin-bottom:6px;display:none;}
+.slot-thumb.visible{display:block;}
+.slot-actions{display:flex;gap:4px;}
+.slot-play-btn,.slot-clear-btn{flex:1;padding:5px;border:none;border-radius:6px;cursor:pointer;font-size:13px;transition:all .15s;}
+.slot-play-btn{background:rgba(124,58,237,.2);color:var(--accent);}
+.slot-play-btn:hover{background:rgba(124,58,237,.4);}
+.slot-play-btn:disabled,.slot-clear-btn:disabled{opacity:.3;cursor:default;}
+.slot-clear-btn{background:rgba(239,68,68,.15);color:var(--danger);}
+.slot-clear-btn:hover{background:rgba(239,68,68,.3);}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.search-box{flex:1;min-width:200px;position:relative;}
+.search-box input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 16px 10px 40px;color:var(--text);font-family:var(--font-main);font-size:14px;outline:none;transition:border-color .2s;}
+.search-box input:focus{border-color:var(--accent);}
+.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:15px;}
+.filter-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.filter-tag{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font-main);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.filter-tag.active{border-color:var(--accent);color:var(--accent);background:rgba(124,58,237,.1);}
+.stop-all-btn{display:flex;align-items:center;gap:6px;background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:10px 16px;cursor:pointer;font-family:var(--font-main);font-size:13px;font-weight:600;transition:all .2s;white-space:nowrap;}
+.stop-all-btn:hover{background:rgba(239,68,68,.25);}
+
+/* SECTION HEADER */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-title{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);}
+.view-toggle{display:flex;gap:4px;}
+.view-btn{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:6px 10px;cursor:pointer;color:var(--muted);font-size:14px;transition:all .2s;}
+.view-btn.active{color:var(--accent);border-color:var(--accent);background:rgba(124,58,237,.1);}
+
+/* SOUND GRID */
+.sound-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;}
+.sound-grid.list-view{grid-template-columns:1fr;gap:5px;}
+.sound-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;user-select:none;}
+.sound-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,58,237,.06),transparent);opacity:0;transition:opacity .2s;}
+.sound-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3);}
+.sound-card:hover::after{opacity:1;}
+.sound-card:active{transform:translateY(0);}
+.sound-card.playing{border-color:var(--playing);box-shadow:0 0 20px rgba(16,185,129,.2);}
+.sound-card.assigned{border-color:rgba(124,58,237,.5);}
+.sound-card.selected{border-color:var(--accent2)!important;box-shadow:0 0 0 2px var(--accent2),0 8px 24px rgba(6,182,212,.25)!important;transform:translateY(-1px);}
+.sound-card.selected::after{opacity:1;background:linear-gradient(135deg,rgba(6,182,212,.12),transparent)!important;}
+.card-select-dot{position:absolute;top:8px;left:8px;width:18px;height:18px;border-radius:50%;background:var(--accent2);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;opacity:0;transform:scale(0.5);transition:all .15s;z-index:2;pointer-events:none;}
+.sound-card.selected .card-select-dot{opacity:1;transform:scale(1);}
+.sound-card:hover .card-select-dot{opacity:0;}
+.card-custom-img{width:100%;height:70px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:none;}
+.card-custom-img.visible{display:block;}
+.card-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:8px;transition:all .2s;flex-shrink:0;}
+.sound-card:hover .card-icon{transform:scale(1.1);}
+.card-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px;}
+.card-folder{font-size:10px;color:var(--muted);font-family:var(--font-mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-badge{position:absolute;top:10px;right:10px;background:var(--accent);color:#fff;font-family:var(--font-mono);font-size:10px;font-weight:500;padding:2px 6px;border-radius:5px;}
+.card-playing-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--playing),var(--accent2));transform:scaleX(0);transform-origin:left;transition:transform .1s;}
+.sound-card.playing .card-playing-bar{transform:scaleX(1);}
+.waveform{display:flex;align-items:center;gap:2px;height:18px;opacity:0;transition:opacity .2s;margin-top:4px;}
+.sound-card.playing .waveform{opacity:1;}
+.waveform-bar{width:3px;background:var(--playing);border-radius:2px;animation:wave .6s ease-in-out infinite alternate;}
+@keyframes wave{from{height:4px}to{height:14px}}
+/* list view */
+.sound-grid.list-view .sound-card{display:flex;align-items:center;gap:10px;padding:9px 14px;border-radius:10px;}
+.sound-grid.list-view .card-icon{width:30px;height:30px;margin:0;font-size:13px;}
+.sound-grid.list-view .card-custom-img{width:40px;height:40px;margin:0;border-radius:6px;}
+.sound-grid.list-view .card-info{flex:1;min-width:0;}
+.sound-grid.list-view .card-name,.sound-grid.list-view .card-folder{margin:0;}
+
+/* SELECTION BAR */
+.selection-bar{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--accent2);border-radius:16px;padding:10px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 0 1px rgba(6,182,212,.2);z-index:1500;opacity:0;pointer-events:none;transition:all .25s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;}
+.selection-bar.visible{opacity:1;pointer-events:all;transform:translateX(-50%) translateY(0);}
+.sel-count{font-size:13px;font-weight:700;color:var(--accent2);padding-right:10px;border-right:1px solid var(--border);}
+.sel-btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--text);font-family:var(--font-main);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.sel-btn:hover{background:var(--surface);border-color:var(--accent);}
+.sel-btn.danger{color:var(--danger);border-color:rgba(239,68,68,.3);}
+.sel-btn.danger:hover{background:rgba(239,68,68,.1);}
+.sel-btn.primary{background:rgba(124,58,237,.2);color:var(--accent);border-color:rgba(124,58,237,.4);}
+.sel-btn.primary:hover{background:rgba(124,58,237,.35);}
+.sel-deselect{width:28px;height:28px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.sel-deselect:hover{background:var(--surface);color:var(--text);}
+.context-menu{position:fixed;z-index:1000;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:6px;box-shadow:0 20px 50px rgba(0,0,0,.5);min-width:200px;display:none;}
+.context-menu.visible{display:block;}
+.ctx-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--text);transition:background .15s;}
+.ctx-item:hover{background:rgba(255,255,255,.05);}
+.ctx-item.danger{color:var(--danger);}
+.ctx-item.danger:hover{background:rgba(239,68,68,.1);}
+.ctx-sep{height:1px;background:var(--border);margin:4px 0;}
+.ctx-label{padding:5px 12px;font-size:11px;color:var(--muted);pointer-events:none;text-transform:uppercase;letter-spacing:1px;}
+
+/* CUSTOMIZATION PANEL */
+.customize-panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 24px;margin-bottom:24px;}
+.customize-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px;}
+.customize-group{display:flex;flex-direction:column;gap:10px;}
+.customize-group label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.theme-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.theme-pill{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font-main);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.theme-pill.active{border-color:var(--accent);color:var(--accent);background:rgba(124,58,237,.15);}
+.font-pills{display:flex;flex-wrap:wrap;gap:6px;}
+.font-pill{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.font-pill.active{border-color:var(--accent);color:var(--accent);background:rgba(124,58,237,.15);}
+.radius-slider{width:100%;accent-color:var(--accent);}
+.accent-swatches{display:flex;flex-wrap:wrap;gap:6px;}
+.swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .2s;}
+.swatch:hover,.swatch.active{border-color:#fff;transform:scale(1.1);}
+.custom-accent{width:36px;height:28px;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:transparent;}
+.logo-upload-row{display:flex;align-items:center;gap:8px;}
+.logo-upload-btn{padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:var(--font-main);font-size:12px;cursor:pointer;transition:all .2s;}
+.logo-upload-btn:hover{border-color:var(--accent);color:var(--accent);}
+#logoPreview{width:36px;height:36px;border-radius:8px;object-fit:contain;background:#000;padding:3px;border:1px solid var(--border);}
+
+/* INFO BUTTON */
+.info-btn{position:fixed;bottom:28px;left:28px;width:42px;height:42px;border-radius:50%;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1400;transition:all .2s;box-shadow:0 4px 16px rgba(0,0,0,.3);font-family:Georgia,serif;}
+.info-btn:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.1);box-shadow:0 6px 20px rgba(124,58,237,.3);}
+
+/* INFO MODAL */
+.info-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:3000;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;}
+.info-overlay.visible{display:flex;}
+.info-box{background:var(--surface2);border:1px solid var(--border);border-radius:24px;padding:0;width:680px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 40px 100px rgba(0,0,0,.6);overflow:hidden;}
+.info-header{display:flex;align-items:center;justify-content:space-between;padding:24px 28px 0;flex-shrink:0;}
+.info-header h2{font-size:18px;font-weight:800;letter-spacing:-.3px;}
+.info-close{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;transition:all .15s;}
+.info-close:hover{color:var(--text);border-color:var(--muted);}
+.info-tabs{display:flex;gap:0;padding:16px 28px 0;border-bottom:1px solid var(--border);flex-shrink:0;}
+.info-tab{padding:10px 18px;background:transparent;border:none;cursor:pointer;font-family:var(--font-main);font-size:13px;font-weight:700;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;}
+.info-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.info-content{overflow-y:auto;padding:24px 28px 28px;flex:1;}
+.info-panel{display:none;}
+.info-panel.active{display:block;}
+.info-section{margin-bottom:24px;}
+.info-section h3{font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2);margin-bottom:10px;}
+.info-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;font-size:13px;line-height:1.6;}
+.info-key{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-family:var(--font-mono);font-size:11px;color:var(--accent3);white-space:nowrap;flex-shrink:0;margin-top:1px;}
+.info-badge{background:rgba(124,58,237,.2);color:var(--accent);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.info-step{display:flex;gap:14px;margin-bottom:12px;align-items:flex-start;}
+.info-step-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#5b21b6);color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.info-step-text{font-size:13px;line-height:1.6;color:var(--text);}
+.info-step-text strong{color:var(--accent2);}
+.info-code{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;font-family:var(--font-mono);font-size:12px;color:var(--accent3);margin:8px 0;line-height:1.7;}
+.info-warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--accent3);margin:10px 0;line-height:1.6;}
+.info-download-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.info-dl-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:11px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--font-main);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;}
+.info-dl-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px);}
+.info-dl-btn.primary{background:linear-gradient(135deg,var(--accent),#5b21b6);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(124,58,237,.35);}
+.info-dl-btn.primary:hover{color:#fff;box-shadow:0 6px 20px rgba(124,58,237,.5);}
+
+.toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:2000;}
+.toast{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--text);display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.4);animation:toastIn .3s ease;max-width:300px;}
+.toast.success{border-color:rgba(16,185,129,.4);}
+.toast.error{border-color:rgba(239,68,68,.4);}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-icon{font-size:52px;margin-bottom:14px;opacity:.3;}
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* LOGIN SCREEN */
+.login-screen{position:fixed;inset:0;background:var(--bg);z-index:9000;display:flex;align-items:center;justify-content:center;
+  background-image:radial-gradient(ellipse 70% 60% at 30% 40%,rgba(124,58,237,.18) 0%,transparent 60%),
+  radial-gradient(ellipse 50% 50% at 70% 70%,rgba(6,182,212,.1) 0%,transparent 60%);}
+.login-box{background:var(--surface2);border:1px solid var(--border);border-radius:24px;padding:40px;width:380px;max-width:95vw;box-shadow:0 40px 100px rgba(0,0,0,.6);}
+.login-logo{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:32px;}
+.login-logo img{width:56px;height:56px;border-radius:14px;background:#000;padding:5px;box-shadow:0 0 24px var(--glow);}
+.login-logo h2{font-size:22px;font-weight:800;letter-spacing:-.5px;}
+.login-logo span{color:var(--accent2);}
+.login-subtitle{font-size:12px;color:var(--muted);margin-top:2px;font-family:var(--font-mono);}
+.login-form{display:flex;flex-direction:column;gap:14px;}
+.login-field{display:flex;flex-direction:column;gap:6px;}
+.login-field label{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);}
+.login-field input{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:var(--font-main);font-size:14px;outline:none;transition:border-color .2s;}
+.login-field input:focus{border-color:var(--accent);}
+.login-error{font-size:12px;color:var(--danger);font-family:var(--font-mono);display:none;padding:8px 12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;}
+.login-btn{background:linear-gradient(135deg,var(--accent),#5b21b6);color:#fff;border:none;border-radius:12px;padding:13px;font-family:var(--font-main);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(124,58,237,.4);margin-top:4px;}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(124,58,237,.6);}
+.login-register-link{text-align:center;font-size:12px;color:var(--muted);margin-top:8px;}
+.login-register-link a{color:var(--accent2);cursor:pointer;text-decoration:none;font-weight:600;}
+.login-register-link a:hover{text-decoration:underline;}
+.login-mode-indicator{text-align:center;font-size:11px;color:var(--muted);font-family:var(--font-mono);margin-bottom:4px;}
+
+/* USER AVATAR in header */
+.user-avatar{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 10px;cursor:pointer;transition:all .2s;position:relative;}
+.user-avatar:hover{border-color:var(--accent);}
+.user-avatar-pic{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;}
+.user-avatar-pic img{width:100%;height:100%;object-fit:cover;}
+.user-avatar-name{font-size:13px;font-weight:600;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.user-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:6px;min-width:160px;box-shadow:0 12px 36px rgba(0,0,0,.5);display:none;z-index:500;}
+.user-avatar:hover .user-dropdown,.user-dropdown.open{display:block;}
+.user-dropdown-item{padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:var(--text);transition:background .15s;}
+.user-dropdown-item:hover{background:rgba(255,255,255,.05);}
+.user-dropdown-item.danger{color:var(--danger);}
+.user-dropdown-item.danger:hover{background:rgba(239,68,68,.1);}
+.user-dropdown-sep{height:1px;background:var(--border);margin:4px 0;}
+
+/* POLYPHONY TOGGLE */
+.poly-toggle{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 12px;cursor:pointer;user-select:none;transition:border-color .2s;}
+.poly-toggle:hover{border-color:var(--accent);}
+.poly-toggle-label{font-size:12px;font-weight:600;color:var(--muted);white-space:nowrap;}
+.poly-toggle.poly-on .poly-toggle-label{color:var(--playing);}
+.toggle-switch{width:32px;height:18px;background:var(--border);border-radius:9px;position:relative;transition:background .2s;flex-shrink:0;}
+.toggle-switch::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;background:#fff;border-radius:50%;transition:transform .2s,background .2s;}
+.poly-toggle.poly-on .toggle-switch{background:var(--playing);}
+.poly-toggle.poly-on .toggle-switch::after{transform:translateX(14px);}
+/* ══════════════════════════════════
+   MOBILE LAYOUT (≤ 640px)
+══════════════════════════════════ */
+@media (max-width: 640px) {
+  /* hide desktop-only elements */
+  .ws-status { display: none; }
+  #tab-recent .keybind-panel { display: none; }
+  .tab-btn[data-tab="recent"] { display: none; }
+
+  /* container padding */
+  .container { padding: 0 12px 80px; }
+
+  /* header */
+  header { padding: 14px 0 12px; gap: 8px; flex-wrap: wrap; }
+  .logo h1 { font-size: 17px; }
+  .logo-img { width: 32px; height: 32px; }
+  .header-right { gap: 6px; }
+  .vol-control { padding: 5px 8px; }
+  .vol-control input[type=range] { width: 60px; }
+  .poly-toggle { padding: 5px 8px; }
+  .poly-toggle-label { display: none; }
+  .user-avatar-name { display: none; }
+
+  /* tabs */
+  .tabs { gap: 0; overflow-x: auto; }
+  .tab-btn { padding: 12px 16px; font-size: 13px; white-space: nowrap; }
+
+  /* folder section — compact on mobile */
+  .folder-section { flex-wrap: wrap; gap: 10px; padding: 14px; }
+  .folder-btn { display: none; } /* replaced by file-input btn on mobile */
+  .mobile-file-btn { display: flex !important; }
+  .stats { gap: 12px; }
+  .desktop-hint { display: none; }
+  .mobile-hint { display: inline !important; }
+
+  /* toolbar */
+  .toolbar { gap: 8px; }
+  .filter-tags { display: none; }
+
+  /* sound grid — 2 columns on mobile */
+  .sound-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  .sound-card { padding: 10px; border-radius: 12px; }
+  .card-icon { width: 32px; height: 32px; font-size: 15px; margin-bottom: 6px; }
+  .card-name { font-size: 12px; }
+  .card-folder { font-size: 9px; }
+
+  /* list view on mobile: single column */
+  .sound-grid.list-view { grid-template-columns: 1fr !important; }
+
+  /* keybind panel — hidden on mobile (no keyboard) */
+  .keybind-panel { display: none; }
+
+  /* customize panel */
+  .customize-grid { grid-template-columns: 1fr; gap: 16px; }
+
+  /* selection bar */
+  .selection-bar { bottom: 70px; left: 12px; right: 12px; transform: translateX(0) translateY(20px); width: auto; flex-wrap: wrap; justify-content: center; border-radius: 14px; }
+  .selection-bar.visible { transform: translateX(0) translateY(0); }
+  .sel-btn { font-size: 11px; padding: 5px 10px; }
+
+  /* info button */
+  .info-btn { bottom: 70px; left: 16px; width: 38px; height: 38px; font-size: 16px; }
+
+  /* mobile bottom nav bar */
+  .mobile-nav { display: flex; }
+
+  /* section header */
+  .section-header { margin-bottom: 10px; }
+
+  /* stop btn */
+  .stop-all-btn { font-size: 12px; padding: 8px 12px; }
+
+  /* empty state */
+  .empty-state { padding: 40px 16px; }
+  .empty-icon { font-size: 40px; }
+
+  /* info modal */
+  .info-box { border-radius: 16px; max-height: 92vh; }
+  .info-header { padding: 18px 18px 0; }
+  .info-content { padding: 16px 18px 20px; }
+  .info-tabs { padding: 12px 18px 0; overflow-x: auto; }
+  .info-tab { padding: 8px 12px; font-size: 12px; }
+
+  /* card editor modal */
+  #cardEditorBox { padding: 20px 16px; }
+}
+
+/* MOBILE BOTTOM NAV */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+  z-index: 1200;
+  padding: 0;
+  box-shadow: 0 -4px 20px rgba(0,0,0,.3);
+}
+.mobile-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 4px 8px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 10px;
+  font-family: var(--font-main);
+  font-weight: 600;
+  gap: 4px;
+  transition: color .2s;
+  border: none;
+  background: transparent;
+  letter-spacing: .3px;
+}
+.mobile-nav-item.active { color: var(--accent); }
+.mobile-file-btn { display: none; align-items: center; gap: 8px; background: linear-gradient(135deg,var(--accent),#5b21b6); color: white; border: none; cursor: pointer; padding: 10px 20px; border-radius: 10px; font-family: var(--font-main); font-weight: 600; font-size: 14px; transition: all .2s; white-space: nowrap; box-shadow: 0 4px 15px rgba(124,58,237,.3); }
+.mobile-file-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,.5); }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <img id="loginLogo" src="" alt="logo">
+      <div>
+        <h2>Sound<span>Board</span></h2>
+        <div class="login-subtitle">by Gigliuxen</div>
+      </div>
+    </div>
+    <div class="login-mode-indicator" id="loginModeLabel">Accedi al tuo account</div>
+    <div class="login-form">
+      <div class="login-field" style="display:none" id="loginNicknameField">
+        <label>Nickname</label>
+        <input type="text" id="loginNickname" placeholder="Il tuo nickname" maxlength="20">
+      </div>
+      <div class="login-field">
+        <label>Username</label>
+        <input type="text" id="loginUsername" placeholder="Username" autocomplete="username">
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Password" autocomplete="current-password">
+      </div>
+      <div class="login-error" id="loginError"></div>
+      <button class="login-btn" id="loginBtn">Accedi</button>
+      <div class="login-register-link" id="loginSwitchText">
+        Non hai un account? <a id="loginSwitchLink">Registrati</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- HEADER -->
+<header>
+  <div class="logo" id="logoArea">
+    <img id="logoImg" class="logo-img" src="" alt="logo">
+    <h1>Sound<span>Board</span></h1>
+  </div>
+  <div class="header-right">
+    <div class="poly-toggle poly-on" id="polyToggle" title="Riproduzione simultanea">
+      <div class="toggle-switch"></div>
+      <span class="poly-toggle-label">Polifonia</span>
+    </div>
+    <div class="vol-control">
+      <span class="vol-label">VOL</span>
+      <input type="range" id="masterVol" min="0" max="1" step="0.01" value="0.8">
+      <span class="vol-label" id="volDisplay">80%</span>
+    </div>
+    <div class="ws-status" id="wsStatus">
+      <div class="ws-dot" id="wsDot"></div>
+      <span id="wsLabel">Script offline</span>
+    </div>
+    <div class="user-avatar" id="userAvatarBtn">
+      <div class="user-avatar-pic" id="userAvatarPic">?</div>
+      <span class="user-avatar-name" id="userAvatarName">Utente</span>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-item" id="ddProfile">&#128100; Profilo</div>
+        <div class="user-dropdown-sep"></div>
+        <div class="user-dropdown-item danger" id="ddLogout">&#10148; Esci</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" data-tab="recent">Recenti &amp; Keybind</button>
+  <button class="tab-btn" data-tab="library">Libreria Suoni</button>
+  <button class="tab-btn" data-tab="customize">Personalizza</button>
+</div>
+
+<!-- TAB: RECENT & KEYBIND -->
+<div class="tab-panel active" id="tab-recent">
+
+  <div class="keybind-panel">
+    <div class="panel-title">Keybind rapidi — clicca il tasto per cambiarlo</div>
+    <div class="keybind-slots" id="keybindSlots"></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Riprodotti di recente</div>
+    <button class="stop-all-btn" id="stopAllBtn2">&#9632; Stop Tutto</button>
+  </div>
+  <div class="sound-grid" id="recentGrid">
+    <div class="empty-state"><div class="empty-icon">&#128336;</div><p>Nessun suono riprodotto ancora</p></div>
+  </div>
+</div>
+
+<!-- TAB: LIBRARY -->
+<div class="tab-panel" id="tab-library">
+  <div class="folder-section">
+    <button class="folder-btn" id="folderBtn">&#128193; Scegli Cartella</button>
+    <button class="mobile-file-btn" id="mobileFileBtn">&#127925; Aggiungi Suoni</button>
+    <input type="file" id="mobileFileInput" accept="audio/*" multiple style="display:none">
+    <div class="folder-info" id="folderInfo">
+      <strong>Nessun suono caricato</strong><br>
+      <span class="desktop-hint">Scegli una cartella dal PC</span>
+      <span class="mobile-hint" style="display:none">Seleziona file audio dal telefono</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="countSounds">0</div><div class="stat-label">Suoni</div></div>
+      <div class="stat"><div class="stat-num" id="countFolders">0</div><div class="stat-label">Cartelle</div></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="searchInput" placeholder="Cerca suoni...">
+    </div>
+    <div class="filter-tags" id="filterTags">
+      <button class="filter-tag active" data-folder="all">Tutti</button>
+    </div>
+    <button class="stop-all-btn" id="stopAllBtn">&#9632; Stop Tutto</button>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Libreria Suoni</div>
+    <div class="view-toggle">
+      <button class="view-btn active" id="gridViewBtn" title="Griglia">&#8862;</button>
+      <button class="view-btn" id="listViewBtn" title="Lista">&#9776;</button>
+    </div>
+  </div>
+
+  <div class="sound-grid" id="soundGrid">
+    <div class="empty-state"><div class="empty-icon">&#127911;</div><p>Seleziona una cartella per iniziare</p><small style="font-size:11px;margin-top:6px;display:block;font-family:var(--font-mono)">Supporta MP3, WAV, OGG, FLAC nelle sottocartelle</small></div>
+  </div>
+</div>
+
+<!-- TAB: CUSTOMIZE -->
+<div class="tab-panel" id="tab-customize">
+  <div class="customize-panel">
+    <div class="customize-grid">
+
+      <div class="customize-group">
+        <label>Tema</label>
+        <div class="theme-pills">
+          <button class="theme-pill active" data-theme="">Dark</button>
+          <button class="theme-pill" data-theme="theme-light">Light</button>
+          <button class="theme-pill" data-theme="theme-cyberpunk">Cyberpunk</button>
+          <button class="theme-pill" data-theme="theme-warm">Warm</button>
+          <button class="theme-pill" data-theme="theme-ocean">Ocean</button>
+        </div>
+      </div>
+
+      <div class="customize-group">
+        <label>Colore Accento</label>
+        <div class="accent-swatches">
+          <div class="swatch active" style="background:#7c3aed" data-color="#7c3aed"></div>
+          <div class="swatch" style="background:#06b6d4" data-color="#06b6d4"></div>
+          <div class="swatch" style="background:#10b981" data-color="#10b981"></div>
+          <div class="swatch" style="background:#f59e0b" data-color="#f59e0b"></div>
+          <div class="swatch" style="background:#ef4444" data-color="#ef4444"></div>
+          <div class="swatch" style="background:#ec4899" data-color="#ec4899"></div>
+          <div class="swatch" style="background:#8b5cf6" data-color="#8b5cf6"></div>
+          <input type="color" class="custom-accent" id="customAccent" value="#7c3aed" title="Colore personalizzato">
+        </div>
+      </div>
+
+      <div class="customize-group">
+        <label>Font</label>
+        <div class="font-pills">
+          <button class="font-pill active" data-font="'Syne', sans-serif" style="font-family:'Syne'">Syne</button>
+          <button class="font-pill" data-font="'Outfit', sans-serif" style="font-family:'Outfit'">Outfit</button>
+          <button class="font-pill" data-font="'Space Grotesk', sans-serif" style="font-family:'Space Grotesk'">Grotesk</button>
+          <button class="font-pill" data-font="'Rajdhani', sans-serif" style="font-family:'Rajdhani'">Rajdhani</button>
+          <button class="font-pill" data-font="'Playfair Display', serif" style="font-family:'Playfair Display'">Playfair</button>
+          <button class="font-pill" data-font="'JetBrains Mono', monospace" style="font-family:'JetBrains Mono'">Mono</button>
+        </div>
+      </div>
+
+      <div class="customize-group">
+        <label>Bordi Card</label>
+        <input type="range" class="radius-slider" id="radiusSlider" min="0" max="24" value="14">
+        <span style="font-size:11px;color:var(--muted);font-family:var(--font-mono)" id="radiusLabel">14px</span>
+      </div>
+
+      <div class="customize-group">
+        <label>Logo / Icona</label>
+        <div class="logo-upload-row">
+          <img id="logoPreview" src="" alt="logo">
+          <button class="logo-upload-btn" id="logoUploadBtn">Cambia immagine</button>
+          <input type="file" id="logoFileInput" accept="image/*" style="display:none">
+        </div>
+        <small style="color:var(--muted);font-size:11px;font-family:var(--font-mono)">Puoi usare qualsiasi immagine dal PC</small>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="keybind-panel">
+    <div class="panel-title">Colore sfondo card suoni — click destro su un suono per personalizzarlo</div>
+    <p style="font-size:12px;color:var(--muted);font-family:var(--font-mono)">Vai nella scheda Libreria, fai click destro su un suono e scegli "Personalizza card" per modificarlo.</p>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+    <button id="resetCustomizeBtn" style="display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:11px;border:1px solid rgba(239,68,68,.35);background:rgba(239,68,68,.1);color:var(--danger);font-family:var(--font-main);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;">
+      &#8635; Ripristina impostazioni predefinite
+    </button>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav-item active" data-mob-tab="library">
+    <span class="mobile-nav-icon">&#127911;</span>Libreria
+  </button>
+  <button class="mobile-nav-item" data-mob-tab="recent">
+    <span class="mobile-nav-icon">&#128336;</span>Recenti
+  </button>
+  <button class="mobile-nav-item" data-mob-tab="customize">
+    <span class="mobile-nav-icon">&#127912;</span>Stile
+  </button>
+</nav>
+
+<!-- CONTEXT MENU -->
+<div class="context-menu" id="contextMenu">
+  <!-- single card items (hidden when multi) -->
+  <div id="ctxSingleItems">
+    <div class="ctx-item" id="ctxPlay">&#9654; Riproduci</div>
+    <div class="ctx-item" id="ctxStop">&#9632; Stop</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-label">Assegna keybind:</div>
+    <div id="ctxSlotList"></div>
+    <div class="ctx-sep"></div>
+  </div>
+  <!-- always visible -->
+  <div class="ctx-item" id="ctxEditCard">&#9998; Personalizza card<span id="ctxEditLabel" style="margin-left:4px;font-size:11px;color:var(--muted)"></span></div>
+  <div class="ctx-item danger" id="ctxResetCard">&#8635; Reset card<span id="ctxResetLabel" style="margin-left:4px;font-size:11px;color:var(--muted)"></span></div>
+</div>
+
+<!-- SELECTION FLOATING BAR -->
+<div class="selection-bar" id="selectionBar">
+  <div class="sel-count" id="selCount">0 selezionate</div>
+  <button class="sel-btn primary" id="selEditBtn">&#9998; Personalizza</button>
+  <button class="sel-btn danger" id="selResetBtn">&#8635; Reset</button>
+  <button class="sel-btn" id="selPlayBtn">&#9654; Riproduci tutte</button>
+  <button class="sel-btn danger" id="selStopBtn">&#9632; Ferma tutte</button>
+  <button class="sel-deselect" id="selDeselectBtn" title="Deseleziona tutto">&#10005;</button>
+</div>
+
+<!-- CARD EDITOR MODAL -->
+<div id="cardEditorOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+  <div id="cardEditorBox" style="background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:28px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.6);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
+      <h2 style="font-size:16px;font-weight:800;letter-spacing:-.3px;" id="cardEditorTitle">Personalizza Card</h2>
+      <button id="cardEditorClose" style="background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:14px;">&#10005;</button>
+    </div>
+
+    <!-- LIVE PREVIEW -->
+    <div style="margin-bottom:22px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Preview</div>
+      <div style="display:flex;justify-content:center;">
+        <div id="cardPreview" style="width:170px;background:var(--surface);border:1px solid var(--border);border-radius:var(--card-radius);padding:14px;position:relative;overflow:hidden;user-select:none;transition:background .2s;">
+          <img id="previewImg" style="width:100%;height:70px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:none;" alt="">
+          <div id="previewIcon" style="width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,rgba(124,58,237,.2),rgba(6,182,212,.2));display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:8px;">&#128266;</div>
+          <div id="previewName" style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:3px;">Nome suono</div>
+          <div id="previewFolder" style="font-size:10px;color:var(--muted);font-family:var(--font-mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">cartella</div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--playing),var(--accent2));transform:scaleX(0.6);transform-origin:left;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLORE SFONDO -->
+    <div style="margin-bottom:18px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Colore sfondo</div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div id="colorSwatchesEditor" style="display:flex;gap:6px;flex-wrap:wrap;"></div>
+        <input type="color" id="editorColorPicker" style="width:36px;height:32px;border:1px solid var(--border);border-radius:8px;cursor:pointer;background:transparent;padding:2px;" title="Colore custom">
+        <button id="editorColorReset" style="padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;">Rimuovi</button>
+      </div>
+    </div>
+
+    <!-- IMMAGINE -->
+    <div style="margin-bottom:22px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;">Immagine (170 × 70 px)</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button id="editorImgBtn" style="padding:8px 16px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:var(--font-main);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;">Scegli immagine</button>
+        <button id="editorImgReset" style="padding:8px 14px;border-radius:9px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.1);color:var(--danger);font-size:12px;cursor:pointer;">Rimuovi</button>
+        <input type="file" id="editorImgInput" accept="image/*" style="display:none">
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px;font-family:var(--font-mono)">L'immagine viene ritagliata automaticamente a 170x70px</div>
+    </div>
+
+    <!-- CANVAS crop nascosto -->
+    <canvas id="cropCanvas" style="display:none;"></canvas>
+
+    <!-- FOOTER BUTTONS -->
+    <div style="display:flex;justify-content:flex-end;gap:8px;">
+      <button id="cardEditorCancel" style="padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font-main);font-size:14px;cursor:pointer;">Annulla</button>
+      <button id="cardEditorSave" style="padding:10px 24px;border-radius:10px;border:none;background:linear-gradient(135deg,var(--accent),#5b21b6);color:#fff;font-family:var(--font-main);font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 14px rgba(124,58,237,.4);">Salva</button>
+    </div>
+  </div>
+</div>
+
+<!-- INFO BUTTON -->
+<button class="info-btn" id="infoBtn" title="Guida e info">?</button>
+
+<!-- INFO MODAL -->
+<div class="info-overlay" id="infoOverlay">
+  <div class="info-box">
+    <div class="info-header">
+      <h2>Guida SoundBoard</h2>
+      <button class="info-close" id="infoClose">&#10005;</button>
+    </div>
+    <div class="info-tabs">
+      <button class="info-tab active" data-itab="guide">Utilizzo</button>
+      <button class="info-tab" data-itab="selection">Selezione</button>
+      <button class="info-tab" data-itab="keybind">Keybind</button>
+      <button class="info-tab" data-itab="script">Script Python</button>
+    </div>
+    <div class="info-content">
+
+      <!-- GUIDE -->
+      <div class="info-panel active" id="ipanel-guide">
+        <div class="info-section">
+          <h3>Per iniziare</h3>
+          <div class="info-step"><div class="info-step-num">1</div><div class="info-step-text">Accedi o registrati con un username e password. Ogni account ha la sua libreria e impostazioni separate.</div></div>
+          <div class="info-step"><div class="info-step-num">2</div><div class="info-step-text">Vai nella scheda <strong>Libreria Suoni</strong> e clicca <strong>Scegli Cartella</strong>. Il sito legge tutti gli MP3/WAV/OGG anche nelle sottocartelle.</div></div>
+          <div class="info-step"><div class="info-step-num">3</div><div class="info-step-text">La cartella viene ricordata — al prossimo accesso ti basterà cliccare "Consenti" quando il browser lo chiede.</div></div>
+          <div class="info-step"><div class="info-step-num">4</div><div class="info-step-text">Clicca su una card per riprodurla. Clicca di nuovo per fermarla.</div></div>
+        </div>
+        <div class="info-section">
+          <h3>Riproduzione</h3>
+          <div class="info-row"><div class="info-badge">Polifonia ON</div><div>Più suoni possono essere riprodotti contemporaneamente.</div></div>
+          <div class="info-row"><div class="info-badge">Polifonia OFF</div><div>Modalità mono — avviare un suono ferma automaticamente tutti gli altri.</div></div>
+          <div class="info-row"><div class="info-key">Stop Tutto</div><div>Ferma immediatamente tutti i suoni in riproduzione.</div></div>
+        </div>
+        <div class="info-section">
+          <h3>Personalizzazione card</h3>
+          <div class="info-row"><div class="info-key">Click destro</div><div>Apre il menu contestuale su una card. Da qui puoi assegnare un keybind, personalizzare colore/immagine, o resettare.</div></div>
+          <div class="info-row"><div class="info-key">Personalizza card</div><div>Apre una modale con preview live dove scegli il colore di sfondo e un'immagine ritagliata automaticamente a 170×70px.</div></div>
+        </div>
+      </div>
+
+      <!-- SELECTION -->
+      <div class="info-panel" id="ipanel-selection">
+        <div class="info-section">
+          <h3>Selezione multipla — come sul desktop</h3>
+          <div class="info-row"><div class="info-key">Click</div><div>Riproduce il suono normalmente.</div></div>
+          <div class="info-row"><div class="info-key">Ctrl + Click</div><div>Seleziona/deseleziona singole card. Puoi selezionarne quante vuoi.</div></div>
+          <div class="info-row"><div class="info-key">Shift + Click</div><div>Seleziona un range dalla prima card selezionata fino a quella cliccata.</div></div>
+          <div class="info-row"><div class="info-key">Esc</div><div>Deseleziona tutto.</div></div>
+        </div>
+        <div class="info-section">
+          <h3>Barra di selezione</h3>
+          <div class="info-step"><div class="info-step-num">1</div><div class="info-step-text">Seleziona 2+ card con Ctrl+Click — compare una barra flottante in basso.</div></div>
+          <div class="info-step"><div class="info-step-num">2</div><div class="info-step-text">Usa <strong>Personalizza</strong> per applicare lo stesso colore o immagine a tutte le card selezionate in una volta sola.</div></div>
+          <div class="info-step"><div class="info-step-num">3</div><div class="info-step-text">Usa <strong>Riproduci tutte</strong> / <strong>Ferma tutte</strong> per controllare l'audio della selezione.</div></div>
+          <div class="info-step"><div class="info-step-num">4</div><div class="info-step-text">Usa <strong>Reset</strong> per rimuovere tutti i metadati personalizzati dalle card selezionate.</div></div>
+        </div>
+      </div>
+
+      <!-- KEYBIND -->
+      <div class="info-panel" id="ipanel-keybind">
+        <div class="info-section">
+          <h3>Assegnare un keybind</h3>
+          <div class="info-step"><div class="info-step-num">1</div><div class="info-step-text">Vai nella scheda <strong>Recenti &amp; Keybind</strong> oppure fai click destro su una card → "Assegna keybind".</div></div>
+          <div class="info-step"><div class="info-step-num">2</div><div class="info-step-text">Clicca il badge del tasto (es. <strong>F1</strong>) nello slot — inizia a lampeggiare.</div></div>
+          <div class="info-step"><div class="info-step-num">3</div><div class="info-step-text">Premi il tasto che vuoi usare. Qualsiasi tasto della tastiera è accettato.</div></div>
+          <div class="info-step"><div class="info-step-num">4</div><div class="info-step-text">Trascina o clicca destro su una card e scegli a quale slot 1–5 assegnarla.</div></div>
+        </div>
+        <div class="info-section">
+          <h3>Browser in primo piano vs minimizzato</h3>
+          <div class="info-row"><div class="info-badge">Browser attivo</div><div>I keybind funzionano tramite il browser stesso — nessuno script necessario.</div></div>
+          <div class="info-row"><div class="info-badge">Browser minimizzato</div><div>Serve lo <strong>Script Python</strong> attivo. Vedi la scheda "Script Python" per la guida.</div></div>
+        </div>
+      </div>
+
+      <!-- SCRIPT -->
+      <div class="info-panel" id="ipanel-script">
+        <div class="info-section">
+          <h3>A cosa serve</h3>
+          <div class="info-row" style="margin-bottom:0">Lo script Python crea un ponte WebSocket locale che intercetta i tasti <em>globalmente</em> — anche quando il browser è minimizzato — e li invia al sito.</div>
+        </div>
+        <div class="info-section">
+          <h3>Locale vs GitHub Pages</h3>
+          <div class="info-row"><div class="info-badge" style="background:rgba(16,185,129,.2);color:var(--playing)">file://</div><div>Apri il file HTML direttamente → usa <code style="font-family:var(--font-mono);color:var(--accent2)">ws://localhost:8765</code> automaticamente.</div></div>
+          <div class="info-row"><div class="info-badge">https://</div><div>GitHub Pages o altro HTTPS → usa <code style="font-family:var(--font-mono);color:var(--accent2)">wss://localhost:8766</code> con SSL. Lo script gestisce entrambi contemporaneamente.</div></div>
+        </div>
+        <div class="info-section">
+          <h3>Setup (prima volta)</h3>
+          <div class="info-step"><div class="info-step-num">1</div><div class="info-step-text">Scarica i file qui sotto e mettili nella <strong>stessa cartella</strong>.</div></div>
+          <div class="info-step"><div class="info-step-num">2</div><div class="info-step-text">Doppio click su <code style="font-family:var(--font-mono);color:var(--accent2)">installa_e_avvia.bat</code> — installa dipendenze e avvia il bridge. Genera anche <strong>cert.pem</strong> e <strong>key.pem</strong> per wss://.</div></div>
+          <div class="info-step"><div class="info-step-num">3</div><div class="info-step-text"><strong>Solo se usi GitHub Pages:</strong> apri <code style="font-family:var(--font-mono);color:var(--accent2)">https://localhost:8766</code> nel browser, clicca "Avanzate" → "Procedi comunque" per accettare il certificato self-signed. Solo la prima volta.</div></div>
+          <div class="info-step"><div class="info-step-num">4</div><div class="info-step-text">Apri la soundboard. In alto a destra vedrai <strong style="color:var(--playing)">● Script attivo</strong>.</div></div>
+        </div>
+        <div class="info-section">
+          <h3>Usi successivi</h3>
+          <div class="info-row">Basta doppio click su <code style="font-family:var(--font-mono);color:var(--accent2)">installa_e_avvia.bat</code> ogni volta. Tienilo aperto nel terminale.</div>
+          <div class="info-warn">⚠️ Serve <strong>OpenSSL</strong> installato per generare il certificato wss://. Se non ce l'hai: <a href="https://slproweb.com/products/Win32OpenSSL.html" target="_blank" style="color:var(--accent2)">scaricalo qui</a> (versione Light va bene).</div>
+        </div>
+        <div class="info-section">
+          <h3>Download</h3>
+          <div class="info-download-row">
+            <button class="info-dl-btn primary" id="dlScript">&#11015; hotkey_bridge.py</button>
+            <button class="info-dl-btn" id="dlBat">&#11015; installa_e_avvia.bat</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ══════════════════════════════════════
+//  AUTH SYSTEM (localStorage-based)
+// ══════════════════════════════════════
+const AUTH_KEY = 'sb_users';
+const SESSION_KEY = 'sb_session';
+
+function getUsers() {
+  try { return JSON.parse(localStorage.getItem(AUTH_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveUsers(u) { localStorage.setItem(AUTH_KEY, JSON.stringify(u)); }
+function getSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); } catch(e) { return null; }
+}
+function saveSession(s) { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+function clearSession() { localStorage.removeItem(SESSION_KEY); }
+
+let currentUser = getSession(); // {username, nickname, avatarColor}
+
+function hashPassword(pw) {
+  // Simple deterministic hash for localStorage-based auth
+  let h = 0;
+  for (let i = 0; i < pw.length; i++) { h = (Math.imul(31, h) + pw.charCodeAt(i)) | 0; }
+  return h.toString(16);
+}
+
+let loginMode = 'login'; // 'login' | 'register'
+
+function initLoginScreen() {
+  // Set logo on login screen
+  const ll = document.getElementById('loginLogo');
+  ll.src = document.getElementById('logoImg').src;
+
+  document.getElementById('loginSwitchLink').onclick = () => {
+    loginMode = loginMode === 'login' ? 'register' : 'login';
+    const isReg = loginMode === 'register';
+    document.getElementById('loginModeLabel').textContent = isReg ? 'Crea un nuovo account' : 'Accedi al tuo account';
+    document.getElementById('loginBtn').textContent = isReg ? 'Registrati' : 'Accedi';
+    document.getElementById('loginSwitchText').innerHTML = isReg
+      ? 'Hai già un account? <a id="loginSwitchLink">Accedi</a>'
+      : 'Non hai un account? <a id="loginSwitchLink">Registrati</a>';
+    document.getElementById('loginNicknameField').style.display = isReg ? '' : 'none';
+    document.getElementById('loginError').style.display = 'none';
+    // Re-attach listener after innerHTML replace
+    document.getElementById('loginSwitchLink').onclick = arguments.callee.caller;
+    // Simpler: just call initLoginScreen listeners again
+    attachLoginListeners();
+  };
+  attachLoginListeners();
+}
+
+function attachLoginListeners() {
+  // re-bind switchLink since it may have been replaced
+  const sl = document.getElementById('loginSwitchLink');
+  if (sl) sl.onclick = () => {
+    loginMode = loginMode === 'login' ? 'register' : 'login';
+    refreshLoginUI();
+  };
+  document.getElementById('loginBtn').onclick = handleLoginSubmit;
+  document.getElementById('loginPassword').onkeydown = (e) => { if(e.key==='Enter') handleLoginSubmit(); };
+  document.getElementById('loginUsername').onkeydown = (e) => { if(e.key==='Enter') document.getElementById('loginPassword').focus(); };
+}
+
+function refreshLoginUI() {
+  const isReg = loginMode === 'register';
+  document.getElementById('loginModeLabel').textContent = isReg ? 'Crea un nuovo account' : 'Accedi al tuo account';
+  document.getElementById('loginBtn').textContent = isReg ? 'Registrati' : 'Accedi';
+  document.getElementById('loginNicknameField').style.display = isReg ? '' : 'none';
+  document.getElementById('loginSwitchText').innerHTML = isReg
+    ? 'Hai già un account? <a id="loginSwitchLink">Accedi</a>'
+    : 'Non hai un account? <a id="loginSwitchLink">Registrati</a>';
+  document.getElementById('loginError').style.display = 'none';
+  attachLoginListeners();
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function handleLoginSubmit() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const nickname = document.getElementById('loginNickname').value.trim();
+
+  if (!username || !password) { showLoginError('Compila tutti i campi.'); return; }
+  if (username.length < 3) { showLoginError('Username troppo corto (min 3 caratteri).'); return; }
+  if (password.length < 4) { showLoginError('Password troppo corta (min 4 caratteri).'); return; }
+
+  const users = getUsers();
+  const hash = hashPassword(password);
+
+  if (loginMode === 'register') {
+    if (users[username]) { showLoginError('Username già in uso.'); return; }
+    const colors = ['#7c3aed','#06b6d4','#10b981','#f59e0b','#ef4444','#ec4899'];
+    const avatarColor = colors[Math.floor(Math.random() * colors.length)];
+    users[username] = { hash, nickname: username, avatarColor, createdAt: Date.now() };
+    saveUsers(users);
+    currentUser = { username, nickname: username, avatarColor };
+    saveSession(currentUser);
+    loginSuccess();
+  } else {
+    if (!users[username]) { showLoginError('Username non trovato.'); return; }
+    if (users[username].hash !== hash) { showLoginError('Password errata.'); return; }
+    const u = users[username];
+    currentUser = { username, nickname: u.nickname, avatarColor: u.avatarColor };
+    saveSession(currentUser);
+    loginSuccess();
+  }
+}
+
+function loginSuccess() {
+  document.getElementById('loginScreen').style.display = 'none';
+  updateUserUI();
+  toast(`Benvenuto, ${currentUser.nickname}!`, 'success');
+  loadUserData();
+  // On mobile default to library tab
+  if (isMobile()) {
+    switchTab('library');
+    document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelector('.mobile-nav-item[data-mob-tab="library"]')?.classList.add('active');
+  }
+}
+
+function updateUserUI() {
+  if (!currentUser) return;
+  const initials = currentUser.nickname.substring(0,2).toUpperCase();
+  const pic = document.getElementById('userAvatarPic');
+  pic.textContent = initials;
+  pic.style.background = `linear-gradient(135deg, ${currentUser.avatarColor}, ${currentUser.avatarColor}99)`;
+  document.getElementById('userAvatarName').textContent = currentUser.nickname;
+}
+
+function logout() {
+  if (currentUser) removeHandle(userKey('sb_dirhandle'));
+  clearSession();
+  currentUser = null;
+  // Stop all sounds
+  [...activeAudios.keys()].forEach(stopSound);
+  // Show login
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+  loginMode = 'login';
+  refreshLoginUI();
+}
+
+// User dropdown
+document.getElementById('userAvatarBtn').onclick = (e) => {
+  e.stopPropagation();
+  document.getElementById('userDropdown').classList.toggle('open');
+};
+window.addEventListener('click', () => document.getElementById('userDropdown').classList.remove('open'));
+document.getElementById('ddLogout').onclick = (e) => { e.stopPropagation(); logout(); };
+document.getElementById('ddProfile').onclick = (e) => {
+  e.stopPropagation();
+  document.getElementById('userDropdown').classList.remove('open');
+  toast(`Account: ${currentUser?.username} — Nickname: ${currentUser?.nickname}`);
+};
+
+// Per-user storage keys
+function userKey(key) { return currentUser ? `${currentUser.username}_${key}` : key; }
+function loadUserData() {
+  try {
+    const sk = JSON.parse(localStorage.getItem(userKey('sb_keybinds')) || '[]');
+    if (sk.length === 5) keybinds = sk;
+    else keybinds = [{key:'F1',sound:null},{key:'F2',sound:null},{key:'F3',sound:null},{key:'F4',sound:null},{key:'F5',sound:null}];
+  } catch(e) {}
+  try { cardMeta = JSON.parse(localStorage.getItem(userKey('sb_cardmeta')) || '{}'); } catch(e) {}
+  try {
+    const sc = JSON.parse(localStorage.getItem(userKey('sb_customize')) || '{}');
+    if (sc.theme !== undefined) applyTheme(sc.theme, false);
+    if (sc.accent) applyAccent(sc.accent, false);
+    if (sc.font) applyFont(sc.font, false);
+    if (sc.radius !== undefined) applyRadius(sc.radius, false);
+    if (sc.logo) applyLogo(sc.logo);
+    polyOn = sc.polyOn !== false;
+    updatePolyUI();
+  } catch(e) {}
+  renderKeybindSlots();
+  renderGrid();
+  renderRecent();
+  // Try to reload saved folder for this user
+  loadSavedFolder();
+}
+
+// ══════════════════════════════════════
+//  POLYPHONY TOGGLE
+// ══════════════════════════════════════
+let polyOn = true; // true = multiple sounds at once
+
+function updatePolyUI() {
+  const t = document.getElementById('polyToggle');
+  t.classList.toggle('poly-on', polyOn);
+  t.title = polyOn ? 'Polifonia attiva — click per disattivare' : 'Mono — click per attivare polifonia';
+}
+
+document.getElementById('polyToggle').onclick = () => {
+  polyOn = !polyOn;
+  updatePolyUI();
+  saveCustomize({polyOn});
+  if (!polyOn) {
+    // Stop all currently playing sounds when switching to mono
+    [...activeAudios.keys()].forEach(stopSound);
+  }
+  toast(polyOn ? 'Polifonia attiva' : 'Modalità mono attiva');
+};
+
+
+const DEFAULT_LOGO_B64 = 'iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAHyUlEQVR4nO2aW0hUXRvHf2vvPXvUSuxoZZC84oioHXAwp/Cmiw43dRFREV1EhXdedtOBBLsRxCIIioK6CwpDMKiwwupGSYpGiQ7kdCEdKM2kHPfM7Oe78Nv7VXs7zMz2299L/mGBjHs/61n/59lrPYelAOEPhua3An5jlgC/FfAbswT4rYDfmCXAbwX8xiwBfivgN2YJ8FsBv2F4LVAphabNDK+2bSPibeqi8CgZ0jQNpRSpVMoLcT+EruuICLZteyLPEw/Qdd1deDAYpKKiAl3XvRDtIpVK0d/fz/j4+HdzZgvJZui6LoDU1NTIpUuXJBaLyUzhzZs30traKiUlJVPmzmZk9Qk4Vjhy5AjHjx/HNE0Avnz5QjQaRURQSmX83TrvKqWoqqoiPz/fld/c3MzJkyc98YSsLH/ixAnXQlevXpVIJCKFhYVZW2b6KCwslEgkItevX3fna2xs9MITMl/85s2bXWX27ds35RlN0zwdk2XX19fL2NiYiIjs3r1bADEM439DgFJKNE0T0zSlv79fRETOnDkjgAQCAdF1XZRSnnuAUkp0XZdAICCAtLS0iIhINBoV0zRFKZXpvJlZf8uWLSIiEovFMlr4zyz8q/d0XZeioiL5/PmziIhs3rw5408h7YhFKQXA6tWrERHa2tpIJBJpb3a2bU8Z6bwHMDg4SEdHByJCTU3NFN3SQdoEOIssKytDKcWHDx/SmtiJEqurq+ns7KSzs5NwOJxWBKmUQilFNBpFKUUikUh3GS7SDoQmEwAQCAR+aHlN09A0jVQqNeUZTdM4d+4c1dXVAJw+fZoNGzakRaSIEAgEgMws7+qS6YuWZbmK/BOUUti2TTKZdM9yTdOwbZva2lqqq6tJJpPYtk04HKa0tBTbttPKIzKNLyYjYwJ+xrqzH6xcuZIDBw6Qk5ODiLjhcVVVFSJCT08P3d3dmKbJ+vXrJxT6LwFKKQzDmLHEyoHn0h1iCgoKePjwIRcuXKC9vZ3c3Fz3mVAohFKK27dvc+vWLQDWrFkDMCV6dDwkGxf/FTwnQNM0RISGhgZWrFiBZVls2rSJXbt2uZtVKBQCoLe3l97eXgCKi4uBv71n2bJlHDp0iOLiYpeUmYDnBDgW27lzJyLC+/fvSaVSbNu2DZjwjIqKCgA+ffrEx48fgQkC8vLysG2bvLw8urq6OH/+PI8ePaK8vHzG6gyeSdQ0DdM00XWdkpISysrK+Pr1Ky0tLei6TigUIicnB8uymD9/PolEgpGREQYGBrAsi5KSEgzDwLZtdu/eTWlpKZZlsXDhQg4ePIht25im6fm+4Jkky7KwLItkMsmOHTswDIMnT57Q3t7Ot2/fCIVC7saYl5dHIpFgYGCAL1++YFkWpmny119/AbB9+3Zs2+b58+ckEgn27t1Lfn4+8XicZDLpnkBeIOuCiPNtlpWVsXHjRhYsWMDhw4dRSnHjxg1isRiWZZGbm0soFCIvLw/TNHn16pV7lo+MjFBUVERhYSG6rhMOh9E0jWPHjtHU1ERlZSUdHR1cuXIFEeHOnTu8ePHCk30hawIcd7x27RqVlZXu7w8ePODs2bMEg0Hevn1LQUEBixYtcoOXly9fEo/HicfjPH78mKKiIkZGRggGgyxevJh4PE53dzd79uzh3r171NXVUVdXB0BfXx9VVVX/HwQ4wcipU6coLy93N76zZ88yNjaGiBCNRikvL+fbt29s3bp1YmLj76kdUtauXUsikSAQCBCLxRgZGeHdu3dEIhH2799PIBBA0zSePXs2Ze5skDUBTnJy8eLF74UbBslkkmQyCcCGDRsYHR0FoKury31ucHAQmDghioqKAIhGo4yNjREIBHj16hVHjhz5Tr6vkeB0BINBDMNwx2T3vH//PjBx/q9btw4RcYubAI8ePQJg+fLl1NbWAjA8PAzghseTZQeDQa/U9q4vkEqlXEtPh7PYuro6t3z+8uVL9/8i4qa1Hz58QETo7u4GcEvtXpXBp8PzxshkOErfv3+fRCJBaWkpIsLo6Cg9PT1u1Of8XV5ezqpVq1BK0dfXB3jj5j/DjGYajvu+fv2au3fvEggEME2Tmzdv8unTJzc5GhgYYHR0lLlz5xIMBhkaGuLp06duRjmTyJiAdC3T0NBAb28vN2/epKGhwU2NNU1jeHiYpqYmt9DR2NjI169ff7vKlA1JGX8CzjH2q7PYUe7FixeEw+F/fEYpRXNzM69fvyaVSnH9+vXfsr4z95w5c9JV30XGBAwNDQH8djnKUdax6mTLigiapnHt2jUA1zt+Jc/ZdJ04IhOk/Qk4kV9PTw8iwtKlS38rInMW/aMOr23bGIaBruu/5dIiwpIlS9xNNRtkVRYfGhqSefPmia7raZW3Mx2apolhGJKTk+P2IbMpi6dNwPTGiG3bbmNE1/UZb4w4HaCmpiZ/GiOTmZ7cGquvr//OUjPZGhsfH/enNTadhMbGRpeEtrY2iUQikp+f77kH5OfnSyQSkba2Nk+bo561x48ePUpOTg4wkdzEYjGArCM5Z4MtLi52E6V4PE5TU5O/7XFnTL4gcfny5Rm9IBGLxaS1tVXC4XDWlneGJ3eE/s1XZP74S1KeEeAK/FOvyf1b8cffFJ0lwG8F/MYsAX4r4DdmCfBbAb8xS4DfCviNWQL8VsBv/AfRoplOxEniSgAAAABJRU5ErkJggg==';
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let allSounds = [];
+let recentSounds = [];
+let keybinds = [{key:'F1',sound:null},{key:'F2',sound:null},{key:'F3',sound:null},{key:'F4',sound:null},{key:'F5',sound:null}];
+let listeningSlot = -1;
+let masterVolume = 0.8;
+let activeAudios = new Map();
+let currentFilter = 'all';
+let searchQuery = '';
+let isGridView = true;
+let contextTarget = null;
+let selectedPaths = new Set();   // paths of currently selected cards
+let lastSelectedPath = null;     // for shift-range selection
+let ws = null;
+let browserFocused = true;
+let cardMeta = {}; // path -> {color, imgUrl}
+
+// Per-user data is loaded by loadUserData() after login
+// (see AUTH SYSTEM section above)
+
+// ══════════════════════════════════════
+//  LOGO INIT
+// ══════════════════════════════════════
+function applyLogo(b64) {
+  const src = b64.startsWith('data:') ? b64 : 'data:image/png;base64,' + b64;
+  document.getElementById('logoImg').src = src;
+  document.getElementById('logoPreview').src = src;
+  // favicon
+  const link = document.getElementById('faviconEl');
+  link.href = src;
+}
+applyLogo(DEFAULT_LOGO_B64);
+
+document.getElementById('logoUploadBtn').onclick = () => document.getElementById('logoFileInput').click();
+document.getElementById('logoFileInput').onchange = (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = (ev) => {
+    applyLogo(ev.target.result);
+    saveCustomize({logo: ev.target.result});
+    toast('Logo aggiornato!', 'success');
+  };
+  r.readAsDataURL(f);
+};
+
+// ══════════════════════════════════════
+//  FOCUS DETECTION
+// ══════════════════════════════════════
+window.addEventListener('focus', () => { browserFocused = true; });
+window.addEventListener('blur', () => { browserFocused = false; });
+
+// ══════════════════════════════════════
+//  WEBSOCKET
+// ══════════════════════════════════════
+function connectWS() {
+  // Se la pagina è su HTTPS (es. GitHub Pages) usa wss://:8766
+  // Se è locale (file:// o http://) usa ws://:8765
+  const isHttps = location.protocol === 'https:';
+  const proto = isHttps ? 'wss' : 'ws';
+  const port  = isHttps ? 8766  : 8765;
+  const url   = `${proto}://localhost:${port}`;
+
+  try {
+    ws = new WebSocket(url);
+    ws.onopen = () => {
+      document.getElementById('wsDot').classList.add('connected');
+      document.getElementById('wsLabel').textContent = 'Script attivo';
+    };
+    ws.onclose = () => {
+      document.getElementById('wsDot').classList.remove('connected');
+      document.getElementById('wsLabel').textContent = 'Script offline';
+      setTimeout(connectWS, 3000);
+    };
+    ws.onmessage = (e) => {
+      const data = JSON.parse(e.data);
+      if (data.type === 'keypress' && !browserFocused) handleHotkey(data.key);
+    };
+    ws.onerror = () => ws.close();
+  } catch(e) {}
+}
+connectWS();
+
+// ══════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  };
+});
+
+// ══════════════════════════════════════
+//  INDEXEDDB — salva/carica handle cartella
+// ══════════════════════════════════════
+const IDB_NAME = 'soundboard_db';
+const IDB_STORE = 'handles';
+
+function openIDB() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = (e) => e.target.result.createObjectStore(IDB_STORE);
+    req.onsuccess = (e) => res(e.target.result);
+    req.onerror = () => rej(req.error);
+  });
+}
+
+async function saveHandle(key, handle) {
+  try {
+    const db = await openIDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).put(handle, key);
+      tx.oncomplete = () => res();
+      tx.onerror = () => rej(tx.error);
+    });
+  } catch(e) {}
+}
+
+async function loadHandle(key) {
+  try {
+    const db = await openIDB();
+    return new Promise((res, rej) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).get(key);
+      req.onsuccess = () => res(req.result || null);
+      req.onerror = () => res(null);
+    });
+  } catch(e) { return null; }
+}
+
+async function removeHandle(key) {
+  try {
+    const db = await openIDB();
+    return new Promise((res) => {
+      const tx = db.transaction(IDB_STORE, 'readwrite');
+      tx.objectStore(IDB_STORE).delete(key);
+      tx.oncomplete = () => res();
+    });
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════
+//  FOLDER PICKER
+// ══════════════════════════════════════
+document.getElementById('folderBtn').onclick = async () => {
+  try {
+    const dir = await window.showDirectoryPicker();
+    await saveHandle(userKey('sb_dirhandle'), dir);
+    await scanFolder(dir);
+    toast(`${allSounds.length} suoni caricati!`, 'success');
+  } catch(e) { if (e.name !== 'AbortError') toast('Errore apertura cartella', 'error'); }
+};
+
+// Mobile: add individual files via <input type="file">
+document.getElementById('mobileFileBtn').onclick = () => document.getElementById('mobileFileInput').click();
+document.getElementById('mobileFileInput').onchange = (e) => {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  let added = 0;
+  files.forEach(file => {
+    if (!/\.(mp3|wav|ogg|flac|m4a|aac)$/i.test(file.name)) return;
+    const url = URL.createObjectURL(file);
+    const name = file.name.replace(/\.[^.]+$/, '');
+    const path = 'Mobile/' + file.name;
+    // avoid duplicates
+    if (allSounds.find(s => s.path === path)) return;
+    allSounds.push({ name, fullName: file.name, folder: 'Mobile', path, url });
+    added++;
+  });
+  const folders = new Set(allSounds.map(s => s.folder));
+  document.getElementById('folderInfo').innerHTML =
+    `<strong>${allSounds.length} suoni</strong> caricati da telefono`;
+  document.getElementById('countSounds').textContent = allSounds.length;
+  document.getElementById('countFolders').textContent = folders.size;
+  buildFilterTags(folders);
+  renderGrid();
+  e.target.value = ''; // reset so same file can be added again
+  if (added > 0) toast(`${added} suoni aggiunti!`, 'success');
+  else toast('Nessun file audio riconosciuto', 'error');
+};
+
+async function scanFolder(dir) {
+  allSounds = [];
+  const folders = new Set();
+  await walkDir(dir, dir.name, folders);
+  document.getElementById('folderInfo').innerHTML = `<strong>${dir.name}</strong><br>${allSounds.length} file in ${folders.size} cartelle`;
+  document.getElementById('countSounds').textContent = allSounds.length;
+  document.getElementById('countFolders').textContent = folders.size;
+  buildFilterTags(folders);
+  renderGrid();
+}
+
+async function loadSavedFolder() {
+  const handle = await loadHandle(userKey('sb_dirhandle'));
+  if (!handle) return;
+
+  // Check permission — may need user gesture to re-grant
+  let perm = await handle.queryPermission({ mode: 'read' });
+  if (perm !== 'granted') {
+    perm = await handle.requestPermission({ mode: 'read' });
+  }
+  if (perm !== 'granted') {
+    // Permission denied — show a prompt button instead
+    showReloadFolderBanner(handle);
+    return;
+  }
+
+  try {
+    await scanFolder(handle);
+    toast(`Libreria ricaricata: ${allSounds.length} suoni`, 'success');
+  } catch(e) {
+    toast('Impossibile ricaricare la cartella', 'error');
+  }
+}
+
+function showReloadFolderBanner(handle) {
+  const info = document.getElementById('folderInfo');
+  info.innerHTML = `<strong style="color:var(--accent3)">Cartella salvata</strong> — 
+    <a id="reloadFolderBtn" style="color:var(--accent2);cursor:pointer;font-weight:600;">Clicca per ricaricare</a>`;
+  document.getElementById('reloadFolderBtn').onclick = async () => {
+    const perm = await handle.requestPermission({ mode: 'read' });
+    if (perm === 'granted') {
+      await scanFolder(handle);
+      toast(`${allSounds.length} suoni caricati!`, 'success');
+    }
+  };
+}
+
+async function walkDir(handle, path, folders) {
+  for await (const [name, entry] of handle.entries()) {
+    if (entry.kind === 'directory') {
+      await walkDir(entry, path + '/' + name, folders);
+    } else if (entry.kind === 'file' && /\.(mp3|wav|ogg|flac|m4a|aac)$/i.test(name)) {
+      const file = await entry.getFile();
+      const url = URL.createObjectURL(file);
+      const folder = path.includes('/') ? path.split('/').slice(1).join('/') : path;
+      folders.add(folder || 'Root');
+      allSounds.push({ name: name.replace(/\.[^.]+$/, ''), fullName: name, folder: folder || 'Root', path: path + '/' + name, url });
+    }
+  }
+}
+
+// ══════════════════════════════════════
+//  FILTER TAGS
+// ══════════════════════════════════════
+function buildFilterTags(folders) {
+  const c = document.getElementById('filterTags');
+  c.innerHTML = '<button class="filter-tag active" data-folder="all">Tutti</button>';
+  for (const f of [...folders].sort()) {
+    const btn = document.createElement('button');
+    btn.className = 'filter-tag';
+    btn.dataset.folder = f;
+    btn.textContent = f.split('/').pop() || f;
+    btn.title = f;
+    c.appendChild(btn);
+  }
+  c.querySelectorAll('.filter-tag').forEach(btn => {
+    btn.onclick = () => {
+      currentFilter = btn.dataset.folder;
+      c.querySelectorAll('.filter-tag').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrid();
+    };
+  });
+}
+
+// ══════════════════════════════════════
+//  RENDER GRID
+// ══════════════════════════════════════
+function getFiltered() {
+  return allSounds.filter(s => {
+    const mf = currentFilter === 'all' || s.folder === currentFilter;
+    const ms = !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return mf && ms;
+  });
+}
+
+function makeCard(sound, listView) {
+  const card = document.createElement('div');
+  card.className = 'sound-card';
+  card.dataset.path = sound.path;
+  if (activeAudios.has(sound.path)) card.classList.add('playing');
+  const slot = keybinds.findIndex(k => k.sound?.path === sound.path);
+  if (slot >= 0) card.classList.add('assigned');
+
+  const meta = cardMeta[sound.path] || {};
+  if (meta.color) card.style.background = meta.color;
+
+  const iconBg = meta.color ? 'rgba(0,0,0,0.2)' : 'linear-gradient(135deg,rgba(124,58,237,.2),rgba(6,182,212,.2))';
+
+  const bars = Array.from({length:5},(_,i)=>`<div class="waveform-bar" style="animation-delay:${i*0.1}s"></div>`).join('');
+
+  let imgHtml = '';
+  if (meta.imgUrl) {
+    imgHtml = `<img class="card-custom-img visible" src="${meta.imgUrl}" alt="">`;
+  }
+
+  const selectDot = `<div class="card-select-dot">&#10003;</div>`;
+
+  if (listView) {
+    card.innerHTML = `
+      ${selectDot}
+      ${imgHtml || `<div class="card-icon" style="background:${iconBg}">${getEmoji(sound.name)}</div>`}
+      <div class="card-info">
+        <div class="card-name">${sound.name}</div>
+        <div class="card-folder">${sound.folder}</div>
+      </div>
+      <div class="waveform">${bars}</div>
+      ${slot>=0?`<div class="card-badge">${keybinds[slot].key}</div>`:''}
+      <div class="card-playing-bar"></div>`;
+  } else {
+    card.innerHTML = `
+      ${selectDot}
+      ${imgHtml || ''}
+      ${!meta.imgUrl ? `<div class="card-icon" style="background:${iconBg}">${getEmoji(sound.name)}</div>` : ''}
+      <div class="card-name">${sound.name}</div>
+      <div class="card-folder">${sound.folder}</div>
+      <div class="waveform">${bars}</div>
+      ${slot>=0?`<div class="card-badge">${keybinds[slot].key}</div>`:''}
+      <div class="card-playing-bar"></div>`;
+  }
+
+  if (selectedPaths.has(sound.path)) card.classList.add('selected');
+
+  card.onclick = (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      // Ctrl/Cmd: toggle this card in selection
+      e.preventDefault();
+      toggleSelect(sound, card);
+    } else if (e.shiftKey && selectedPaths.size > 0) {
+      // Shift: range select from last selected to this card
+      e.preventDefault();
+      rangeSelect(sound);
+    } else if (selectedPaths.size > 0 && selectedPaths.has(sound.path)) {
+      // Click on already-selected card without modifier: deselect all
+      clearSelection();
+    } else if (selectedPaths.size > 0) {
+      // Click on unselected card with others selected: clear and select just this
+      clearSelection();
+      toggleSelect(sound, card);
+    } else {
+      // Normal click: play
+      playSound(sound);
+    }
+  };
+  card.oncontextmenu = (e) => {
+    e.preventDefault();
+    // If right-clicking on an unselected card, select just it
+    if (!selectedPaths.has(sound.path)) {
+      clearSelection();
+      toggleSelect(sound, card);
+    }
+    showContextMenu(e, sound);
+  };
+  return card;
+}
+
+function renderGrid() {
+  const filtered = getFiltered();
+  const grid = document.getElementById('soundGrid');
+  if (filtered.length === 0) {
+    grid.innerHTML = allSounds.length === 0
+      ? `<div class="empty-state"><div class="empty-icon">&#127911;</div><p>Seleziona una cartella per iniziare</p></div>`
+      : `<div class="empty-state"><div class="empty-icon">&#128269;</div><p>Nessun suono trovato</p></div>`;
+    return;
+  }
+  grid.innerHTML = '';
+  grid.className = 'sound-grid' + (isGridView ? '' : ' list-view');
+  filtered.forEach(s => grid.appendChild(makeCard(s, !isGridView)));
+}
+
+function renderRecent() {
+  const grid = document.getElementById('recentGrid');
+  if (recentSounds.length === 0) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">&#128336;</div><p>Nessun suono riprodotto ancora</p></div>`;
+    return;
+  }
+  grid.innerHTML = '';
+  grid.className = 'sound-grid';
+  recentSounds.slice(0,10).forEach(s => grid.appendChild(makeCard(s, false)));
+}
+
+function getEmoji(name) {
+  const n = name.toLowerCase();
+  if (/shot|gun|bullet/.test(n)) return '&#128299;';
+  if (/explosion|boom|blast/.test(n)) return '&#128165;';
+  if (/laugh|haha|lol/.test(n)) return '&#128514;';
+  if (/scream|yell|shout/.test(n)) return '&#128561;';
+  if (/bell|ding|ring/.test(n)) return '&#128276;';
+  if (/click|button|ui/.test(n)) return '&#128432;';
+  if (/music|song|beat|drum/.test(n)) return '&#127925;';
+  if (/voice|speak|talk/.test(n)) return '&#128483;';
+  if (/water|rain|drop/.test(n)) return '&#128167;';
+  return '&#128266;';
+}
+
+// ══════════════════════════════════════
+//  AUDIO
+// ══════════════════════════════════════
+function playSound(sound) {
+  if (activeAudios.has(sound.path)) { stopSound(sound.path); return; }
+  // Mono mode: stop all currently playing sounds first
+  if (!polyOn) { [...activeAudios.keys()].forEach(stopSound); }
+  const audio = new Audio(sound.url);
+  audio.volume = masterVolume;
+  audio.play().catch(()=>{});
+  activeAudios.set(sound.path, audio);
+  updateCardState(sound.path, true);
+  // recent
+  recentSounds = [sound, ...recentSounds.filter(s => s.path !== sound.path)].slice(0,10);
+  renderRecent();
+  audio.onended = () => { activeAudios.delete(sound.path); updateCardState(sound.path, false); };
+}
+function stopSound(path) {
+  const a = activeAudios.get(path); if (a) { a.pause(); a.currentTime=0; }
+  activeAudios.delete(path); updateCardState(path, false);
+}
+function updateCardState(path, playing) {
+  document.querySelectorAll(`.sound-card[data-path="${CSS.escape(path)}"]`).forEach(c => c.classList.toggle('playing', playing));
+  keybinds.forEach((kb,i) => {
+    if (kb.sound?.path === path) {
+      const slot = document.querySelectorAll('.keybind-slot')[i];
+      if (slot) slot.classList.toggle('is-playing', playing);
+    }
+  });
+}
+const stopAll = () => { [...activeAudios.keys()].forEach(stopSound); toast('Stop tutti i suoni'); };
+document.getElementById('stopAllBtn').onclick = stopAll;
+document.getElementById('stopAllBtn2').onclick = stopAll;
+document.getElementById('masterVol').oninput = (e) => {
+  masterVolume = parseFloat(e.target.value);
+  document.getElementById('volDisplay').textContent = Math.round(masterVolume*100)+'%';
+  activeAudios.forEach(a => a.volume = masterVolume);
+};
+
+// ══════════════════════════════════════
+//  KEYBINDS PANEL
+// ══════════════════════════════════════
+function renderKeybindSlots() {
+  const c = document.getElementById('keybindSlots');
+  c.innerHTML = '';
+  keybinds.forEach((kb, i) => {
+    const slot = document.createElement('div');
+    slot.className = 'keybind-slot' + (kb.sound ? ' has-sound' : '');
+    const meta = kb.sound ? (cardMeta[kb.sound.path] || {}) : {};
+    slot.innerHTML = `
+      <div class="slot-key${listeningSlot===i?' listening':''}" id="slotKey${i}">${listeningSlot===i?'...':kb.key}</div>
+      ${meta.imgUrl ? `<img class="slot-thumb visible" src="${meta.imgUrl}" alt="">` : ''}
+      <div class="slot-name${kb.sound?'':' empty'}">${kb.sound?kb.sound.name:'— vuoto —'}</div>
+      <div class="slot-actions">
+        <button class="slot-play-btn" ${kb.sound?'':'disabled'}>&#9654;</button>
+        <button class="slot-clear-btn" ${kb.sound?'':'disabled'}>&#10005;</button>
+      </div>`;
+    slot.querySelector(`#slotKey${i}`).onclick = () => startListening(i);
+    slot.querySelector('.slot-play-btn').onclick = () => { if(kb.sound) playSound(kb.sound); };
+    slot.querySelector('.slot-clear-btn').onclick = () => clearSlot(i);
+    c.appendChild(slot);
+  });
+}
+
+function startListening(i) {
+  if (listeningSlot === i) { listeningSlot = -1; renderKeybindSlots(); return; }
+  listeningSlot = i; renderKeybindSlots();
+  toast('Premi un tasto da assegnare!');
+}
+function clearSlot(i) { keybinds[i].sound = null; saveKeybinds(); renderKeybindSlots(); renderGrid(); renderRecent(); }
+function assignSoundToSlot(i, sound) {
+  keybinds[i].sound = sound; saveKeybinds(); renderKeybindSlots(); renderGrid(); renderRecent();
+  toast(`${sound.name} → ${keybinds[i].key}`, 'success');
+  syncWS();
+}
+function saveKeybinds() {
+  localStorage.setItem(userKey('sb_keybinds'), JSON.stringify(keybinds.map(k => ({key:k.key, sound:k.sound?{name:k.sound.name,path:k.sound.path,url:k.sound.url,folder:k.sound.folder}:null}))));
+}
+function syncWS() {
+  if (ws && ws.readyState === 1) ws.send(JSON.stringify({type:'update_keybinds',keybinds:keybinds.map(k=>({key:k.key,sound:k.sound?k.sound.name:null}))}));
+}
+
+// ══════════════════════════════════════
+//  KEYBOARD — prevent double trigger
+// ══════════════════════════════════════
+window.addEventListener('keydown', (e) => {
+  if (document.activeElement.tagName === 'INPUT') return;
+  if (listeningSlot >= 0) {
+    e.preventDefault();
+    const key = e.key.length === 1 ? e.key.toUpperCase() : e.key;
+    keybinds[listeningSlot].key = key;
+    listeningSlot = -1;
+    saveKeybinds(); renderKeybindSlots(); syncWS();
+    toast('Tasto aggiornato: ' + key, 'success');
+    return;
+  }
+  // Only handle if browser is focused (script handles when not focused)
+  if (browserFocused) handleHotkey(e.key.length===1?e.key.toUpperCase():e.key);
+});
+
+function handleHotkey(key) {
+  const kb = keybinds.find(k => k.key === key);
+  if (kb && kb.sound) playSound(kb.sound);
+}
+
+// ══════════════════════════════════════
+//  MULTI-SELECTION
+// ══════════════════════════════════════
+function toggleSelect(sound, cardEl) {
+  if (selectedPaths.has(sound.path)) {
+    selectedPaths.delete(sound.path);
+    if (cardEl) cardEl.classList.remove('selected');
+    // find and deselect in DOM too
+    document.querySelectorAll(`.sound-card[data-path="${CSS.escape(sound.path)}"]`).forEach(c => c.classList.remove('selected'));
+  } else {
+    selectedPaths.add(sound.path);
+    document.querySelectorAll(`.sound-card[data-path="${CSS.escape(sound.path)}"]`).forEach(c => c.classList.add('selected'));
+    lastSelectedPath = sound.path;
+  }
+  if (selectedPaths.size === 0) lastSelectedPath = null;
+  updateSelectionBar();
+}
+
+function rangeSelect(sound) {
+  // Get current filtered list (visible cards)
+  const filtered = getFiltered();
+  const paths = filtered.map(s => s.path);
+  const idxLast = paths.indexOf(lastSelectedPath);
+  const idxNow = paths.indexOf(sound.path);
+  if (idxLast === -1 || idxNow === -1) { toggleSelect(sound, null); return; }
+  const from = Math.min(idxLast, idxNow);
+  const to = Math.max(idxLast, idxNow);
+  for (let i = from; i <= to; i++) {
+    selectedPaths.add(paths[i]);
+    document.querySelectorAll(`.sound-card[data-path="${CSS.escape(paths[i])}"]`).forEach(c => c.classList.add('selected'));
+  }
+  lastSelectedPath = sound.path;
+  updateSelectionBar();
+}
+
+function clearSelection() {
+  selectedPaths.clear();
+  lastSelectedPath = null;
+  document.querySelectorAll('.sound-card.selected').forEach(c => c.classList.remove('selected'));
+  updateSelectionBar();
+}
+
+function updateSelectionBar() {
+  const bar = document.getElementById('selectionBar');
+  const n = selectedPaths.size;
+  if (n === 0) {
+    bar.classList.remove('visible');
+  } else {
+    bar.classList.add('visible');
+    document.getElementById('selCount').textContent = n === 1 ? '1 selezionata' : `${n} selezionate`;
+  }
+}
+
+function getSelectedSounds() {
+  return allSounds.filter(s => selectedPaths.has(s.path));
+}
+
+// Selection bar buttons
+document.getElementById('selDeselectBtn').onclick = () => clearSelection();
+document.getElementById('selEditBtn').onclick = () => openCardEditor(null); // null = multi mode
+document.getElementById('selResetBtn').onclick = () => {
+  getSelectedSounds().forEach(s => delete cardMeta[s.path]);
+  saveCardMeta(); renderGrid(); renderRecent(); renderKeybindSlots();
+  clearSelection(); toast('Card resettate', 'success');
+};
+document.getElementById('selPlayBtn').onclick = () => { getSelectedSounds().forEach(s => playSound(s)); };
+document.getElementById('selStopBtn').onclick = () => { getSelectedSounds().forEach(s => stopSound(s.path)); };
+
+// Deselect on Escape
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && selectedPaths.size > 0) clearSelection();
+});
+
+// Deselect when clicking empty grid area
+document.getElementById('soundGrid').addEventListener('click', (e) => {
+  if (!e.target.closest('.sound-card')) clearSelection();
+});
+
+// ══════════════════════════════════════
+//  CONTEXT MENU
+// ══════════════════════════════════════
+function showContextMenu(e, sound) {
+  contextTarget = sound;
+  const multi = selectedPaths.size > 1;
+  const n = selectedPaths.size;
+
+  // Show/hide single-only items
+  document.getElementById('ctxSingleItems').style.display = multi ? 'none' : '';
+  document.getElementById('ctxEditLabel').textContent = multi ? `(${n} card)` : '';
+  document.getElementById('ctxResetLabel').textContent = multi ? `(${n} card)` : '';
+
+  if (!multi) {
+    // Populate slot list for single card
+    const slotList = document.getElementById('ctxSlotList');
+    slotList.innerHTML = '';
+    keybinds.forEach((kb,i) => {
+      const item = document.createElement('div');
+      item.className = 'ctx-item';
+      item.innerHTML = `<span style="font-family:var(--font-mono);color:var(--accent3);min-width:28px">${kb.key}</span> Slot ${i+1}${kb.sound?' — '+kb.sound.name.substring(0,10)+'…':''}`;
+      item.onclick = () => { assignSoundToSlot(i, sound); hideContextMenu(); };
+      slotList.appendChild(item);
+    });
+  }
+
+  const menu = document.getElementById('contextMenu');
+  menu.style.left = Math.min(e.clientX, window.innerWidth-230)+'px';
+  menu.style.top = Math.min(e.clientY, window.innerHeight-260)+'px';
+  menu.classList.add('visible');
+}
+function hideContextMenu() { document.getElementById('contextMenu').classList.remove('visible'); }
+// NOTE: contextTarget is NOT cleared on hide — it must persist until editor saves or cancels
+
+document.getElementById('ctxPlay').onclick = () => { if(contextTarget) playSound(contextTarget); hideContextMenu(); };
+document.getElementById('ctxStop').onclick = () => { if(contextTarget) stopSound(contextTarget.path); hideContextMenu(); };
+document.getElementById('ctxEditCard').onclick = () => {
+  hideContextMenu();
+  openCardEditor(selectedPaths.size > 1 ? null : contextTarget);
+};
+document.getElementById('ctxResetCard').onclick = () => {
+  const targets = selectedPaths.size > 1 ? getSelectedSounds() : (contextTarget ? [contextTarget] : []);
+  targets.forEach(s => delete cardMeta[s.path]);
+  saveCardMeta(); renderGrid(); renderRecent(); renderKeybindSlots();
+  clearSelection(); hideContextMenu(); contextTarget = null;
+  toast(`${targets.length > 1 ? targets.length + ' card resettate' : 'Card resettata'}`);
+};
+function saveCardMeta() { localStorage.setItem(userKey('sb_cardmeta'), JSON.stringify(cardMeta)); }
+window.addEventListener('click', (e) => { if (!e.target.closest('.context-menu') && !e.target.closest('.sound-card')) hideContextMenu(); });
+window.addEventListener('contextmenu', e => { if (!e.target.closest('.sound-card')) hideContextMenu(); });
+
+// ══════════════════════════════════════
+//  CARD EDITOR MODAL
+// ══════════════════════════════════════
+// Card dimensions in px (must match CSS .card-custom-img)
+const CARD_IMG_W = 170;
+const CARD_IMG_H = 70;
+
+// Preset colors for the editor
+const PRESET_COLORS = ['#1a0a2e','#0a1a2e','#0a2e1a','#2e1a0a','#2e0a0a','#1a1a1a','#0d1117','#1e1b4b','#1e3a5f','#14532d'];
+
+let editorTempColor = null;
+let editorTempImgUrl = null;
+let editorTargetSound = null;
+
+function openCardEditor(sound) {
+  // sound = null means multi-selection mode
+  const isMulti = !sound || selectedPaths.size > 1;
+  editorTargetSound = sound; // null in multi mode
+
+  const n = selectedPaths.size;
+  if (isMulti) {
+    document.getElementById('cardEditorTitle').textContent = `Personalizza ${n} Card`;
+    // In multi mode, preview shows a generic placeholder
+    document.getElementById('previewName').textContent = `${n} suoni selezionati`;
+    document.getElementById('previewFolder').textContent = 'selezione multipla';
+    // Hide preview image (meaningless for multi)
+    document.getElementById('previewImg').style.display = 'none';
+    document.getElementById('previewIcon').style.display = 'flex';
+  } else {
+    document.getElementById('cardEditorTitle').textContent = 'Personalizza Card';
+    document.getElementById('previewName').textContent = sound.name;
+    document.getElementById('previewFolder').textContent = sound.folder;
+  }
+
+  // Seed editor with existing meta of first target (or nothing for multi)
+  const meta = (!isMulti && sound) ? (cardMeta[sound.path] || {}) : {};
+  editorTempColor = meta.color || null;
+  editorTempImgUrl = meta.imgUrl || null;
+
+  // Build color swatches
+  const sw = document.getElementById('colorSwatchesEditor');
+  sw.innerHTML = '';
+  PRESET_COLORS.forEach(c => {
+    const d = document.createElement('div');
+    d.style.cssText = `width:26px;height:26px;border-radius:50%;background:${c};cursor:pointer;border:2px solid ${editorTempColor===c?'#fff':'transparent'};transition:all .15s;flex-shrink:0;`;
+    d.onclick = () => {
+      editorTempColor = c;
+      updateEditorPreview();
+      sw.querySelectorAll('div').forEach(x => x.style.borderColor='transparent');
+      d.style.borderColor='#fff';
+      document.getElementById('editorColorPicker').value = c;
+    };
+    sw.appendChild(d);
+  });
+  const picker = document.getElementById('editorColorPicker');
+  picker.value = editorTempColor || '#111118';
+
+  updateEditorPreview();
+  document.getElementById('cardEditorOverlay').style.display = 'flex';
+}
+
+function updateEditorPreview() {
+  const preview = document.getElementById('cardPreview');
+  const img = document.getElementById('previewImg');
+  const icon = document.getElementById('previewIcon');
+
+  preview.style.background = editorTempColor || 'var(--surface)';
+
+  if (editorTempImgUrl) {
+    img.src = editorTempImgUrl;
+    img.style.display = 'block';
+    icon.style.display = 'none';
+  } else {
+    img.style.display = 'none';
+    icon.style.display = 'flex';
+  }
+}
+
+function closeCardEditor() {
+  document.getElementById('cardEditorOverlay').style.display = 'none';
+  editorTargetSound = null;
+  editorTempColor = null;
+  editorTempImgUrl = null;
+}
+
+document.getElementById('cardEditorClose').onclick = closeCardEditor;
+document.getElementById('cardEditorCancel').onclick = closeCardEditor;
+document.getElementById('cardEditorOverlay').onclick = (e) => { if (e.target === document.getElementById('cardEditorOverlay')) closeCardEditor(); };
+
+// Color picker live update
+document.getElementById('editorColorPicker').oninput = (e) => {
+  editorTempColor = e.target.value;
+  updateEditorPreview();
+};
+document.getElementById('editorColorReset').onclick = () => {
+  editorTempColor = null;
+  document.getElementById('editorColorPicker').value = '#111118';
+  document.getElementById('colorSwatchesEditor').querySelectorAll('div').forEach(x => x.style.borderColor='transparent');
+  updateEditorPreview();
+};
+
+// Image picker with crop
+document.getElementById('editorImgBtn').onclick = () => document.getElementById('editorImgInput').click();
+document.getElementById('editorImgInput').onchange = (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const srcImg = new Image();
+    srcImg.onload = () => {
+      // Crop & resize to exactly CARD_IMG_W x CARD_IMG_H
+      const canvas = document.getElementById('cropCanvas');
+      canvas.width = CARD_IMG_W;
+      canvas.height = CARD_IMG_H;
+      const ctx = canvas.getContext('2d');
+
+      // Cover crop: center the image
+      const srcAR = srcImg.width / srcImg.height;
+      const dstAR = CARD_IMG_W / CARD_IMG_H;
+      let sx, sy, sw2, sh2;
+      if (srcAR > dstAR) {
+        sh2 = srcImg.height;
+        sw2 = sh2 * dstAR;
+        sx = (srcImg.width - sw2) / 2;
+        sy = 0;
+      } else {
+        sw2 = srcImg.width;
+        sh2 = sw2 / dstAR;
+        sx = 0;
+        sy = (srcImg.height - sh2) / 2;
+      }
+      ctx.drawImage(srcImg, sx, sy, sw2, sh2, 0, 0, CARD_IMG_W, CARD_IMG_H);
+      editorTempImgUrl = canvas.toDataURL('image/jpeg', 0.88);
+      updateEditorPreview();
+      toast(`Immagine ritagliata a ${CARD_IMG_W}x${CARD_IMG_H}px`, 'success');
+    };
+    srcImg.src = ev.target.result;
+  };
+  reader.readAsDataURL(f);
+  // Reset so same file can be picked again
+  e.target.value = '';
+};
+document.getElementById('editorImgReset').onclick = () => {
+  editorTempImgUrl = null;
+  updateEditorPreview();
+};
+
+// SAVE — applies to single card or all selected
+document.getElementById('cardEditorSave').onclick = () => {
+  const targets = selectedPaths.size > 1
+    ? getSelectedSounds()
+    : (editorTargetSound ? [editorTargetSound] : []);
+
+  targets.forEach(s => {
+    const existing = cardMeta[s.path] || {};
+    if (editorTempColor) existing.color = editorTempColor; else delete existing.color;
+    if (editorTempImgUrl) existing.imgUrl = editorTempImgUrl; else delete existing.imgUrl;
+    if (Object.keys(existing).length) cardMeta[s.path] = existing; else delete cardMeta[s.path];
+  });
+
+  saveCardMeta();
+  renderGrid(); renderRecent(); renderKeybindSlots();
+  closeCardEditor();
+  toast(targets.length > 1 ? `${targets.length} card salvate!` : 'Card salvata!', 'success');
+};
+
+// ══════════════════════════════════════
+//  SEARCH / VIEW
+// ══════════════════════════════════════
+document.getElementById('searchInput').oninput = (e) => { searchQuery = e.target.value; renderGrid(); };
+document.getElementById('gridViewBtn').onclick = () => { isGridView=true; document.getElementById('gridViewBtn').classList.add('active'); document.getElementById('listViewBtn').classList.remove('active'); renderGrid(); };
+document.getElementById('listViewBtn').onclick = () => { isGridView=false; document.getElementById('listViewBtn').classList.add('active'); document.getElementById('gridViewBtn').classList.remove('active'); renderGrid(); };
+
+// ══════════════════════════════════════
+//  CUSTOMIZE
+// ══════════════════════════════════════
+function saveCustomize(partial) {
+  try {
+    const cur = JSON.parse(localStorage.getItem(userKey('sb_customize'))||'{}');
+    localStorage.setItem(userKey('sb_customize'), JSON.stringify({...cur, ...partial}));
+  } catch(e) {}
+}
+function applyTheme(theme, save=true) {
+  document.body.className = document.body.className.replace(/theme-\S+/g,'').trim();
+  if (theme) document.body.classList.add(theme);
+  document.querySelectorAll('.theme-pill').forEach(p => p.classList.toggle('active', p.dataset.theme === theme));
+  if (save) saveCustomize({theme});
+}
+function applyAccent(color, save=true) {
+  document.documentElement.style.setProperty('--accent', color);
+  if (save) saveCustomize({accent: color});
+}
+function applyFont(font, save=true) {
+  document.documentElement.style.setProperty('--font-main', font);
+  document.querySelectorAll('.font-pill').forEach(p => p.classList.toggle('active', p.dataset.font === font));
+  if (save) saveCustomize({font});
+}
+function applyRadius(val, save=true) {
+  document.documentElement.style.setProperty('--card-radius', val+'px');
+  document.getElementById('radiusSlider').value = val;
+  document.getElementById('radiusLabel').textContent = val+'px';
+  if (save) saveCustomize({radius: val});
+}
+
+document.querySelectorAll('.theme-pill').forEach(p => p.onclick = () => applyTheme(p.dataset.theme));
+document.querySelectorAll('.swatch').forEach(s => s.onclick = () => {
+  document.querySelectorAll('.swatch').forEach(x => x.classList.remove('active'));
+  s.classList.add('active'); applyAccent(s.dataset.color);
+});
+document.getElementById('customAccent').oninput = (e) => applyAccent(e.target.value);
+document.querySelectorAll('.font-pill').forEach(p => p.onclick = () => applyFont(p.dataset.font));
+document.getElementById('radiusSlider').oninput = (e) => applyRadius(parseInt(e.target.value));
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+function toast(msg, type='') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 2800);
+}
+
+document.getElementById('resetCustomizeBtn').onclick = () => {
+  if (!confirm('Vuoi ripristinare tutte le impostazioni di personalizzazione ai valori predefiniti?')) return;
+  // Remove saved customize for this user
+  localStorage.removeItem(userKey('sb_customize'));
+  // Apply defaults
+  applyTheme('', false);
+  applyAccent('#7c3aed', false);
+  applyFont("'Syne', sans-serif", false);
+  applyRadius(14, false);
+  applyLogo(DEFAULT_LOGO_B64);
+  // Reset accent swatch UI
+  document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.dataset.color === '#7c3aed'));
+  document.getElementById('customAccent').value = '#7c3aed';
+  toast('Impostazioni ripristinate!', 'success');
+};
+
+// ══════════════════════════════════════
+//  MOBILE NAV
+// ══════════════════════════════════════
+function isMobile() { return window.innerWidth <= 640; }
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const deskBtn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  if (deskBtn) deskBtn.classList.add('active');
+  document.getElementById(`tab-${tabId}`).classList.add('active');
+}
+
+document.querySelectorAll('.mobile-nav-item').forEach(btn => {
+  btn.onclick = () => {
+    switchTab(btn.dataset.mobTab);
+    document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  };
+});
+
+// Sync desktop tab clicks → mobile nav highlight
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (!isMobile()) return;
+    document.querySelectorAll('.mobile-nav-item').forEach(b => b.classList.remove('active'));
+    const mBtn = document.querySelector(`.mobile-nav-item[data-mob-tab="${btn.dataset.tab}"]`);
+    if (mBtn) mBtn.classList.add('active');
+  });
+});
+
+document.getElementById('infoBtn').onclick = () => {
+  document.getElementById('infoOverlay').classList.add('visible');
+};
+document.getElementById('infoClose').onclick = () => {
+  document.getElementById('infoOverlay').classList.remove('visible');
+};
+document.getElementById('infoOverlay').onclick = (e) => {
+  if (e.target === document.getElementById('infoOverlay'))
+    document.getElementById('infoOverlay').classList.remove('visible');
+};
+
+// Info tabs
+document.querySelectorAll('.info-tab').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.info-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.info-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('ipanel-' + btn.dataset.itab).classList.add('active');
+  };
+});
+
+// Download buttons — inline file content as blobs
+const SCRIPT_CONTENT = `"""
+SoundBoard — Global Hotkey Bridge v3
+by Gigliuxen
+
+Supporta sia ws:// (locale) che wss:// (GitHub Pages / HTTPS).
+Genera automaticamente un certificato SSL self-signed per wss://.
+
+REQUISITI:
+    pip install websockets keyboard
+
+Al primo avvio genera cert.pem e key.pem nella stessa cartella.
+"""
+
+import asyncio
+import json
+import ssl
+import os
+import sys
+import subprocess
+import websockets
+import keyboard
+
+# ── Porte ──────────────────────────────────────────
+WS_PORT  = 8765   # ws://  per uso locale (file://)
+WSS_PORT = 8766   # wss:// per GitHub Pages (https://)
+
+# ── Percorso certificati (stessa cartella dello script) ──
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CERT_FILE = os.path.join(BASE_DIR, "cert.pem")
+KEY_FILE  = os.path.join(BASE_DIR, "key.pem")
+
+connected_clients = set()
+current_keybinds = [
+    {"key": "f1"}, {"key": "f2"}, {"key": "f3"},
+    {"key": "f4"}, {"key": "f5"},
+]
+registered_hooks = []
+loop = None
+
+
+# ── Genera certificato self-signed se non esiste ──────
+def generate_cert():
+    if os.path.exists(CERT_FILE) and os.path.exists(KEY_FILE):
+        return True
+    print("[*] Generazione certificato SSL self-signed...")
+    try:
+        subprocess.run([
+            "openssl", "req", "-x509", "-newkey", "rsa:2048",
+            "-keyout", KEY_FILE,
+            "-out",    CERT_FILE,
+            "-days",   "3650",
+            "-nodes",
+            "-subj",   "/CN=localhost"
+        ], check=True, capture_output=True)
+        print("[OK] Certificato generato: cert.pem + key.pem")
+        return True
+    except FileNotFoundError:
+        print("[!] openssl non trovato — wss:// non disponibile.")
+        print("    Installa OpenSSL: https://slproweb.com/products/Win32OpenSSL.html")
+        return False
+    except subprocess.CalledProcessError as e:
+        print(f"[!] Errore generazione certificato: {e}")
+        return False
+
+
+# ── Keybind ───────────────────────────────────────────
+def register_hotkeys():
+    global registered_hooks
+    for hook in registered_hooks:
+        try:
+            keyboard.remove_hotkey(hook)
+        except Exception:
+            pass
+    registered_hooks.clear()
+
+    for kb in current_keybinds:
+        key = kb.get("key", "").lower()
+        if not key:
+            continue
+        try:
+            hook = keyboard.add_hotkey(
+                key,
+                lambda k=kb["key"]: asyncio.run_coroutine_threadsafe(
+                    broadcast_keypress(k), loop
+                ),
+                suppress=False
+            )
+            registered_hooks.append(hook)
+            print(f"  [OK] {kb['key'].upper()}")
+        except Exception as e:
+            print(f"  [!] Errore {kb['key']}: {e}")
+
+
+async def broadcast_keypress(key: str):
+    if not connected_clients:
+        return
+    msg = json.dumps({"type": "keypress", "key": key.upper()})
+    dead = set()
+    for ws in connected_clients:
+        try:
+            await ws.send(msg)
+        except Exception:
+            dead.add(ws)
+    connected_clients.difference_update(dead)
+
+
+# ── Handler connessioni ───────────────────────────────
+async def handler(websocket):
+    connected_clients.add(websocket)
+    proto = "wss" if websocket.transport.get_extra_info("ssl_object") else "ws"
+    print(f"[+] Browser connesso via {proto}:// ({len(connected_clients)} totale)")
+
+    try:
+        async for message in websocket:
+            try:
+                data = json.loads(message)
+                if data.get("type") == "update_keybinds":
+                    global current_keybinds
+                    new_binds = data.get("keybinds", [])
+                    if new_binds:
+                        current_keybinds = new_binds
+                        print("[~] Keybind aggiornati:")
+                        for kb in current_keybinds:
+                            print(f"    {kb['key'].upper()} => {kb.get('sound') or 'vuoto'}")
+                        register_hotkeys()
+            except json.JSONDecodeError:
+                pass
+    except websockets.exceptions.ConnectionClosed:
+        pass
+    finally:
+        connected_clients.discard(websocket)
+        print(f"[-] Browser disconnesso ({len(connected_clients)} rimasti)")
+
+
+# ── Main ──────────────────────────────────────────────
+async def main():
+    global loop
+    loop = asyncio.get_running_loop()
+
+    print("=" * 54)
+    print("  SoundBoard — Hotkey Bridge v3  |  by Gigliuxen")
+    print("=" * 54)
+    print()
+    print("[*] Registrando keybind globali:")
+    register_hotkeys()
+    print()
+
+    servers = []
+
+    # Server ws:// (plain, per uso locale/file://)
+    ws_server = await websockets.serve(handler, "localhost", WS_PORT)
+    servers.append(ws_server)
+    print(f"[*] ws://localhost:{WS_PORT}   ← per uso locale (file://)")
+
+    # Server wss:// (SSL, per GitHub Pages / https://)
+    has_cert = generate_cert()
+    if has_cert:
+        ssl_ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ssl_ctx.load_cert_chain(CERT_FILE, KEY_FILE)
+        wss_server = await websockets.serve(handler, "localhost", WSS_PORT, ssl=ssl_ctx)
+        servers.append(wss_server)
+        print(f"[*] wss://localhost:{WSS_PORT}  ← per GitHub Pages (https://)")
+        print()
+        print("  IMPORTANTE — Prima volta con GitHub Pages:")
+        print(f"  Apri nel browser: https://localhost:{WSS_PORT}")
+        print("  Clicca 'Avanzate' → 'Procedi comunque' per accettare")
+        print("  il certificato self-signed. Farlo una sola volta.")
+    else:
+        print("[!] wss:// non disponibile (OpenSSL mancante)")
+
+    print()
+    print("[*] Tieni questa finestra aperta mentre usi la soundboard.")
+    print("[*] CTRL+C per fermare.")
+    print()
+
+    await asyncio.Future()
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n[*] Bridge fermato. Ciao!")
+`;
+
+const BAT_CONTENT = `@echo off
+title SoundBoard — Hotkey Bridge
+color 0A
+echo.
+echo  ================================================
+echo   SoundBoard - Hotkey Bridge  ^|  by Gigliuxen
+echo  ================================================
+echo.
+
+:: Trova Python usando il launcher universale "py" oppure "python"
+set PYTHON=
+where py >nul 2>&1
+if %errorlevel%==0 ( set PYTHON=py ) else (
+  where python >nul 2>&1
+  if %errorlevel%==0 ( set PYTHON=python )
+)
+
+if "%PYTHON%"=="" (
+  echo  [ERRORE] Python non trovato sul PC!
+  echo  Scaricalo da: https://www.python.org/downloads/
+  echo  Assicurati di spuntare "Add Python to PATH" durante l'installazione.
+  pause
+  exit /b 1
+)
+
+echo  Python trovato: %PYTHON%
+echo.
+echo  Installazione dipendenze...
+%PYTHON% -m pip install websockets keyboard --quiet
+if %errorlevel% neq 0 (
+  echo  [ERRORE] Installazione fallita. Controlla la connessione internet.
+  pause
+  exit /b 1
+)
+echo  [OK] Dipendenze installate!
+echo.
+echo  Avvio bridge... Tieni questa finestra aperta.
+echo.
+%PYTHON% "%~dp0hotkey_bridge.py"
+pause
+`;
+
+function downloadText(filename, content) {
+  const blob = new Blob([content], {type: 'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+
+document.getElementById('dlScript').onclick = () => {
+  downloadText('hotkey_bridge.py', SCRIPT_CONTENT);
+  toast('Download hotkey_bridge.py avviato!', 'success');
+};
+document.getElementById('dlBat').onclick = () => {
+  downloadText('installa_e_avvia.bat', BAT_CONTENT);
+  toast('Download installa_e_avvia.bat avviato!', 'success');
+};
+
+// Init logo on login screen once logo is set
+(function initApp() {
+  // Set login logo
+  const ll = document.getElementById('loginLogo');
+  const mainLogo = document.getElementById('logoImg');
+  // logos are set after applyLogo, so use the src already set
+  ll.src = mainLogo.src;
+  mainLogo.onload = () => { ll.src = mainLogo.src; };
+
+  attachLoginListeners();
+  updatePolyUI();
+
+  if (currentUser) {
+    // Already logged in
+    document.getElementById('loginScreen').style.display = 'none';
+    updateUserUI();
+    loadUserData();
+  } else {
+    // Show login screen
+    document.getElementById('loginScreen').style.display = 'flex';
+    renderKeybindSlots();
+    renderRecent();
+  }
+})();
+</script>
+</body>
+</html>
