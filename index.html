@@ -167,7 +167,6 @@
             color: #0b0f19;
         }
 
-        /* Indicatore di scorrimento per le tab */
         .tab-slider {
             position: absolute;
             height: calc(100% - 0.6rem);
@@ -213,7 +212,6 @@
             transform: translateX(0);
         }
 
-        /* Animazioni di scorrimento laterale delle formule */
         .formula-content.slide-left-out { transform: translateX(-100%); opacity: 0; }
         .formula-content.slide-right-out { transform: translateX(100%); opacity: 0; }
         .formula-content.slide-left-in { transform: translateX(100%); }
@@ -254,7 +252,6 @@
 
         sup { font-size: 0.8rem; }
 
-        /* Nascondi intere categorie se vuote durante la ricerca */
         .section-wrapper.hidden {
             display: none;
         }
@@ -268,10 +265,10 @@
 <body>
 
     <header>
-        <h1>Super Formulario Geometrico</h1>
-        <p class="subtitle">Formule animate e interattive divise per categorie</p>
+        <h1>Formulario Geometrico</h1>
+        <p class="subtitle"></p>
         <div class="search-container">
-            <input type="text" id="searchBar" placeholder="Cerca una figura o un solido... (es. Cerchio, Cono)">
+            <input type="text" id="searchBar" placeholder="Cerca una figura o un solido...">
         </div>
     </header>
 
@@ -290,13 +287,13 @@
                 <div class="wrapper-formule">
                     <div class="formula-content dirette active">
                         <div class="formula-row"><span class="formula-label">Area</span><span class="formula-math">A = s<sup>2</sup></span></div>
-                        <div class="formula-row"><span class="formula-label">Perimetro</span><span class="formula-math">2p = s * 4</span></div>
-                        <div class="formula-row"><span class="formula-label">Diagonale</span><span class="formula-math">d = s * √2</span></div>
+                        <div class="formula-row"><span class="formula-label">Perimetro</span><span class="formula-math">2p = s · 4</span></div>
+                        <div class="formula-row"><span class="formula-label">Diagonale</span><span class="formula-math">d = s · √2</span></div>
                     </div>
                     <div class="formula-content inverse">
                         <div class="formula-row"><span class="formula-label">Spigolo (da Area)</span><span class="formula-math">s = √A</span></div>
-                        <div class="formula-row"><span class="formula-label">Spigolo (da Perimetro)</span><span class="formula-math">s = 2p / 4</span></div>
-                        <div class="formula-row"><span class="formula-label">Spigolo (da Diagonale)</span><span class="formula-math">s = d / √2</span></div>
+                        <div class="formula-row"><span class="formula-label">Spigolo (da Perimetro)</span><span class="formula-math">s = 2p : 4</span></div>
+                        <div class="formula-row"><span class="formula-label">Spigolo (da Diagonale)</span><span class="formula-math">s = d : √2</span></div>
                     </div>
                 </div>
             </section>
@@ -311,13 +308,13 @@
                 </div>
                 <div class="wrapper-formule">
                     <div class="formula-content dirette active">
-                        <div class="formula-row"><span class="formula-label">Area</span><span class="formula-math">A = b * h</span></div>
-                        <div class="formula-row"><span class="formula-label">Perimetro</span><span class="formula-math">2p = 2 * (b + h)</span></div>
+                        <div class="formula-row"><span class="formula-label">Area</span><span class="formula-math">A = b · h</span></div>
+                        <div class="formula-row"><span class="formula-label">Perimetro</span><span class="formula-math">2p = 2 · (b + h)</span></div>
                         <div class="formula-row"><span class="formula-label">Diagonale</span><span class="formula-math">d = √(b<sup>2</sup> + h<sup>2</sup>)</span></div>
                     </div>
                     <div class="formula-content inverse">
-                        <div class="formula-row"><span class="formula-label">Base (b)</span><span class="formula-math">b = A / h</span></div>
-                        <div class="formula-row"><span class="formula-label">Altezza (h)</span><span class="formula-math">h = A / b</span></div>
+                        <div class="formula-row"><span class="formula-label">Base (b)</span><span class="formula-math">b = A : h</span></div>
+                        <div class="formula-row"><span class="formula-label">Altezza (h)</span><span class="formula-math">h = A : b</span></div>
                     </div>
                 </div>
             </section>
@@ -332,12 +329,12 @@
                 </div>
                 <div class="wrapper-formule">
                     <div class="formula-content dirette active">
-                        <div class="formula-row"><span class="formula-label">Area</span><span class="formula-math">A = π * r<sup>2</sup></span></div>
-                        <div class="formula-row"><span class="formula-label">Circonferenza</span><span class="formula-math">C = 2 * π * r</span></div>
+                        <div class="formula-row"><span class="formula-label">Area</span><span class="formula-math">A = π · r<sup>2</sup></span></div>
+                        <div class="formula-row"><span class="formula-label">Circonferenza</span><span class="formula-math">C = 2 · π · r</span></div>
                     </div>
                     <div class="formula-content inverse">
-                        <div class="formula-row"><span class="formula-label">Raggio (da Area)</span><span class="formula-math">r = √(A / π)</span></div>
-                        <div class="formula-row"><span class="formula-label">Raggio (da Circonf.)</span><span class="formula-math">r = C / (2 * π)</span></div>
+                        <div class="formula-row"><span class="formula-label">Raggio (da Area)</span><span class="formula-math">r = √(A : π)</span></div>
+                        <div class="formula-row"><span class="formula-label">Raggio (da Circonf.)</span><span class="formula-math">r = C : (2 · π)</span></div>
                     </div>
                 </div>
             </section>
@@ -358,12 +355,12 @@
                 </div>
                 <div class="wrapper-formule">
                     <div class="formula-content dirette active">
-                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = 4 * s<sup>2</sup></span></div>
-                        <div class="formula-row"><span class="formula-label">Area Totale</span><span class="formula-math">At = 6 * s<sup>2</sup></span></div>
+                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = 4 · s<sup>2</sup></span></div>
+                        <div class="formula-row"><span class="formula-label">Area Totale</span><span class="formula-math">At = 6 · s<sup>2</sup></span></div>
                         <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = s<sup>3</sup></span></div>
                     </div>
                     <div class="formula-content inverse">
-                        <div class="formula-row"><span class="formula-label">Spigolo (da Al)</span><span class="formula-math">s = √(Al / 4)</span></div>
+                        <div class="formula-row"><span class="formula-label">Spigolo (da Al)</span><span class="formula-math">s = √(Al : 4)</span></div>
                         <div class="formula-row"><span class="formula-label">Spigolo (da V)</span><span class="formula-math">s = ∛V</span></div>
                     </div>
                 </div>
@@ -379,13 +376,13 @@
                 </div>
                 <div class="wrapper-formule">
                     <div class="formula-content dirette active">
-                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = 2p * c</span></div>
-                        <div class="formula-row"><span class="formula-label">Area Totale</span><span class="formula-math">At = 2*Ab + Al</span></div>
-                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = a * b * c</span></div>
+                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = 2p · c</span></div>
+                        <div class="formula-row"><span class="formula-label">Area Totale</span><span class="formula-math">At = 2 · Ab + Al</span></div>
+                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = a · b · c</span></div>
                     </div>
                     <div class="formula-content inverse">
-                        <div class="formula-row"><span class="formula-label">Altezza (c)</span><span class="formula-math">c = V / Ab</span></div>
-                        <div class="formula-row"><span class="formula-label">Area di Base</span><span class="formula-math">Ab = V / c</span></div>
+                        <div class="formula-row"><span class="formula-label">Altezza (c)</span><span class="formula-math">c = V : Ab</span></div>
+                        <div class="formula-row"><span class="formula-label">Area di Base</span><span class="formula-math">Ab = V : c</span></div>
                     </div>
                 </div>
             </section>
@@ -400,12 +397,12 @@
                 </div>
                 <div class="wrapper-formule">
                     <div class="formula-content dirette active">
-                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = 2p * h</span></div>
-                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = Ab * h</span></div>
+                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = 2p · h</span></div>
+                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = Ab · h</span></div>
                     </div>
                     <div class="formula-content inverse">
-                        <div class="formula-row"><span class="formula-label">Altezza (h)</span><span class="formula-math">h = Al / 2p</span></div>
-                        <div class="formula-row"><span class="formula-label">Perimetro (2p)</span><span class="formula-math">2p = Al / h</span></div>
+                        <div class="formula-row"><span class="formula-label">Altezza (h)</span><span class="formula-math">h = Al : 2p</span></div>
+                        <div class="formula-row"><span class="formula-label">Perimetro (2p)</span><span class="formula-math">2p = Al : h</span></div>
                     </div>
                 </div>
             </section>
@@ -420,12 +417,12 @@
                 </div>
                 <div class="wrapper-formule">
                     <div class="formula-content dirette active">
-                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = (2p * a) / 2</span></div>
-                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = (Ab * h) / 3</span></div>
+                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = (2p · a) : 2</span></div>
+                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = (Ab · h) : 3</span></div>
                     </div>
                     <div class="formula-content inverse">
-                        <div class="formula-row"><span class="formula-label">Altezza (h)</span><span class="formula-math">h = (3 * V) / Ab</span></div>
-                        <div class="formula-row"><span class="formula-label">Apotema (a)</span><span class="formula-math">a = (2 * Al) / 2p</span></div>
+                        <div class="formula-row"><span class="formula-label">Altezza (h)</span><span class="formula-math">h = (3 · V) : Ab</span></div>
+                        <div class="formula-row"><span class="formula-label">Apotema (a)</span><span class="formula-math">a = (2 · Al) : 2p</span></div>
                     </div>
                 </div>
             </section>
@@ -446,12 +443,12 @@
                 </div>
                 <div class="wrapper-formule">
                     <div class="formula-content dirette active">
-                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = 2 * π * r * h</span></div>
-                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = π * r<sup>2</sup> * h</span></div>
+                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = 2 · π · r · h</span></div>
+                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = π · r<sup>2</sup> · h</span></div>
                     </div>
                     <div class="formula-content inverse">
-                        <div class="formula-row"><span class="formula-label">Altezza (h)</span><span class="formula-math">h = V / (π * r<sup>2</sup>)</span></div>
-                        <div class="formula-row"><span class="formula-label">Raggio (r)</span><span class="formula-math">r = √(V / (π * h))</span></div>
+                        <div class="formula-row"><span class="formula-label">Altezza (h)</span><span class="formula-math">h = V : (π · r<sup>2</sup>)</span></div>
+                        <div class="formula-row"><span class="formula-label">Raggio (r)</span><span class="formula-math">r = √(V : (π · h))</span></div>
                     </div>
                 </div>
             </section>
@@ -466,13 +463,13 @@
                 </div>
                 <div class="wrapper-formule">
                     <div class="formula-content dirette active">
-                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = π * r * a</span></div>
-                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = (π * r<sup>2</sup> * h) / 3</span></div>
+                        <div class="formula-row"><span class="formula-label">Area Laterale</span><span class="formula-math">Al = π · r · a</span></div>
+                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = (π · r<sup>2</sup> · h) : 3</span></div>
                         <div class="formula-row"><span class="formula-label">Apotema/Generatrice</span><span class="formula-math">a = √(h<sup>2</sup> + r<sup>2</sup>)</span></div>
                     </div>
                     <div class="formula-content inverse">
                         <div class="formula-row"><span class="formula-label">Altezza (h)</span><span class="formula-math">h = √(a<sup>2</sup> - r<sup>2</sup>)</span></div>
-                        <div class="formula-row"><span class="formula-label">Raggio (r)</span><span class="formula-math">r = Al / (π * a)</span></div>
+                        <div class="formula-row"><span class="formula-label">Raggio (r)</span><span class="formula-math">r = Al : (π · a)</span></div>
                     </div>
                 </div>
             </section>
@@ -487,12 +484,12 @@
                 </div>
                 <div class="wrapper-formule">
                     <div class="formula-content dirette active">
-                        <div class="formula-row"><span class="formula-label">Area Superficie</span><span class="formula-math">As = 4 * π * r<sup>2</sup></span></div>
-                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = (4/3) * π * r<sup>3</sup></span></div>
+                        <div class="formula-row"><span class="formula-label">Area Superficie</span><span class="formula-math">As = 4 · π · r<sup>2</sup></span></div>
+                        <div class="formula-row"><span class="formula-label">Volume</span><span class="formula-math">V = (4 : 3) · π · r<sup>3</sup></span></div>
                     </div>
                     <div class="formula-content inverse">
-                        <div class="formula-row"><span class="formula-label">Raggio (da Area)</span><span class="formula-math">r = √(As / (4*π))</span></div>
-                        <div class="formula-row"><span class="formula-label">Raggio (da Volume)</span><span class="formula-math">r = ∛(3V / (4*π))</span></div>
+                        <div class="formula-row"><span class="formula-label">Raggio (da Area)</span><span class="formula-math">r = √(As : (4 · π))</span></div>
+                        <div class="formula-row"><span class="formula-label">Raggio (da Volume)</span><span class="formula-math">r = ∛(3 · V : (4 · π))</span></div>
                     </div>
                 </div>
             </section>
@@ -500,7 +497,6 @@
     </div>
 
     <script>
-        // Gestione cambio schede con scorrimento (Sliding)
         function changeTab(button, mode) {
             if (button.classList.contains('active')) return;
 
@@ -509,35 +505,27 @@
             const currentActiveContent = card.querySelector('.formula-content.active');
             const targetContent = card.querySelector(`.formula-content.${mode}`);
 
-            // Determina la direzione dello slide
             const isGoingInverse = (mode === 'inverse');
 
-            // Rimuovi vecchie classi attive dai bottoni
             tabs.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
 
-            // Applica animazioni di slide out al blocco corrente
             currentActiveContent.classList.remove('active');
             currentActiveContent.classList.add(isGoingInverse ? 'slide-left-out' : 'slide-right-out');
 
-            // Resetta e prepara il blocco in entrata
-            targetContent.className = `formula-content ${mode}`; // reset classi d'animazione temporanee
+            targetContent.className = `formula-content ${mode}`;
             targetContent.classList.add(isGoingInverse ? 'slide-left-in' : 'slide-right-in');
             
-            // Forza il reflow del browser per registrare la posizione di partenza dell'animazione
             targetContent.offsetHeight;
 
-            // Avvia lo sliding finale
             targetContent.classList.add('active');
             targetContent.classList.remove(isGoingInverse ? 'slide-left-in' : 'slide-right-in');
 
-            // Pulisci le classi vecchie dopo la fine dell'animazione
             setTimeout(() => {
                 currentActiveContent.classList.remove('slide-left-out', 'slide-right-out');
             }, 400);
         }
 
-        // Sistema di ricerca avanzato che nasconde anche i titoli delle macro-categorie vuote
         document.getElementById('searchBar').addEventListener('input', function(e) {
             const query = e.target.value.toLowerCase().trim();
             
@@ -555,7 +543,6 @@
                     }
                 });
 
-                // Se la categoria non ha elementi corrispondenti, nascondi l'intero blocco
                 if (cardVisibili === 0 && query !== '') {
                     section.classList.add('hidden');
                 } else {
